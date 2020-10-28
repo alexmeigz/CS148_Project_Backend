@@ -10,11 +10,11 @@ def show(id):
         response["message"] = "Missing Product ID Parameter"
         status = 400
     else: #valid product id (currently a placeholder)
-        response["id"] = id
+        response["product_id"] = 0
         response["subscription"] = False
         response["frequency"] = str(datetime.timedelta(weeks=1))
         response["price"] = "$100"
-        response["date"] = datetime.date.today()
+        response["list_date"] = datetime.date.today()
         response["location"] = "Santa Barbara"
         response["nutrition_id"] = 0
         status = 200
