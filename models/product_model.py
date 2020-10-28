@@ -31,6 +31,7 @@ class Product(BaseModel, db.Model):
     __tablename__ = 'product'
 
     id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.Text)
     subscription = db.Column(db.Boolean)
     frequency = db.Column(db.Interval)
     price = db.Column(db.Float)

@@ -87,13 +87,29 @@ def postit():
 
     return jsonify(response), status
 
+@app.route('/api/product/', methods=['POST'])
+def createProduct():
+    '''
+    POST PARAMS:
+    product_name: str (required)
+    subscription: bool (required)
+    price: float (required)
+    location: str (optional)
+    
+    RESPONSE: (if successful)
+    {
+        "message": "Product created successfully!"
+    }
+    '''
+    return product_controller.create(request.args)
+
 @app.route('/api/product/', methods=['GET'])
 def showProduct():
     '''
     GET PARAMS:
     id = product_id (required)
     
-    RESPONSE:
+    RESPONSE: (if successful) 
     {
         "frequency": str(datetime.timedelta),
         "list_date": datetime,
@@ -101,6 +117,7 @@ def showProduct():
         "nutrition_id": int,
         "price": str (includes currency symbol),
         "product_id": int,
+        "product_name": str,
         "subscription": bool
     }   
     '''
