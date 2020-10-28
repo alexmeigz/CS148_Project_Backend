@@ -6,6 +6,7 @@
 
 import os, json
 from flask import Flask, request, jsonify, make_response
+from products import product_controller
 
 #use this if linking to a reaact app on the same server
 #app = Flask(__name__, static_folder='./build', static_url_path='/')
@@ -86,10 +87,26 @@ def postit():
 
     return jsonify(response), status
 
+@app.route('/api/product/', methods=['GET'])
+def showProduct():
+    '''
+    GET PARAMS:
+    id = product id (required)
+    
+    RESPONSE:
+    {
+        "
+    }
+    '''
+    id = request.args.get("id", None)
+    return product_controller.show(id)
+
+
+
 # Set the base route to be the react index.html
 @app.route('/')
 def index():
-    return "<h1>Welcome to our server !!</h1>",200
+    return "<h1> Welcome to the Masterchef Kitchen !!</h1>",200
 
     #use this instead if linking to a raact app on the same server
     #make sure and update the app = Flask(...) line above for the same
@@ -103,3 +120,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    #hello world
