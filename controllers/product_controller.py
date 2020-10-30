@@ -1,18 +1,26 @@
 from flask import jsonify
-from controllers import *
+from controllers import base_controller
 import time, datetime
 
-def create(params):
+def create(params): 
     response = {}
-    productFields = {}
-    productFields["product_name"] = params.get("product_name", None)
-    productFields["subscription"] = params.get("subscription", None)
-    productFields["price"] = params.get("price", None)
-    productFields["location"] = params.get("location", None)
+    requiredFields = ["product_name", "subscription", "price"]
+    optionalFields = ["location"]
+    allFields = requiredFields + optionalFields
     
-    if not (productFields["product_name"] and productFields["subscription"] and 
-            productFields["price"]):
-        response["message"] = "Missing Required Parameters (product_name, subscription, price)"
+    productFields = {}
+    for field in requiredFields:
+        if params.get(field, None) == None:
+            response["message"] = "Missing Required Parameters (product_name, subscription, price)"
+            status = 400
+            return response
+        productFields[field] = params.get(field, None)
+        
+    for field in optionalFields:
+        productFields[field] = params.get(field, None)
+
+    if base_controller.verify(params, allFields): #passed invalid parameter
+        response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
         status = 400
     else:
         try:
