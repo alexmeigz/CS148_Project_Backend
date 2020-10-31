@@ -1,8 +1,63 @@
-''' 
-    This file is based off of this tutorial: https://stackabuse.com/deploying-a-flask-application-to-heroku/ 
-    Author: Chandra Krintz, 
-    License: UCSB BSD -- see LICENSE file in this repository
+
+from flask import Flask, url_for, redirect, session
+
+from authlib.integrations.flask_client import OAuth
+
+
+app = Flask(__name__)
+app.secret_key = 'random secret' #need to randomly generate this
+
+#oauth config
+oauth = OAuth(app)
+google = oauth.register(
+    name='google',
+    client_id='720141718226-gk93b8rl0m5raduj13817ul4ichl24bq.apps.googleusercontent.com',#os.getenv("GOOGLE_CLIENT_ID"),
+    client_secret='eRdWK_fc3kddV6Kyx5pEUkk-',#os.getenv("GOOGLE_CLIENT_SECRET"),
+    access_token_url='https://accounts.google.com/o/oauth2/token',
+    access_token_params=None,
+    authorize_url='https://accounts.google.com/o/oauth2/auth',
+    authorize_params=None,
+    api_base_url='https://www.googleapis.com/oauth2/v1/',
+    #userinfo_endpoint='https://openidconnect.googleapis.com/v1/userinfo',  # This is only needed if using openId to fetch user info
+    client_kwargs={'scope': 'openid profile email'},
+)
+
+@app.route('/')
+def hello_world():
+    email = dict(session).get('email',None)
+    return f'Hello, {email}'
+
+
+
+@app.route('/login')
+def login():
+    google = oauth.create_client('google')
+    redirect_uri = url_for('authorize', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+@app.route('/authorize')
+def authorize():
+    google = oauth.create_client('google')
+    token = google.authorize_access_token()
+    resp = google.get('userinfo')
+    user_info = resp.json()
+    # do something with the token and profile
+    session['email'] = user_info['email']
+    return redirect('/')
+
+
+@app.route('/logout')
+def logout():
+    for key in list(session.keys()):
+        session.pop(key)
+    return redirect('/')
+
 '''
+
+   # This file is based off of this tutorial: https://stackabuse.com/deploying-a-flask-application-to-heroku/ 
+    #Author: Chandra Krintz, 
+   # License: UCSB BSD -- see LICENSE file in this repository
+
 
 import os, json
 from flask import Flask, request, jsonify, make_response
@@ -35,9 +90,9 @@ def after_request_func(response):
     return response
 ### end CORS section
 
-'''
-Note that flask automatically redirects routes without a final slash (/) to one with a final slash (e.g. /getmsg redirects to /getmsg/). Curl does not handle redirects but instead prints the updated url. The browser handles redirects (i.e. takes them). You should always code your routes with both a start/end slash.
-'''
+
+#Note that flask automatically redirects routes without a final slash (/) to one with a final slash (e.g. /getmsg redirects to /getmsg/). Curl does not handle redirects but instead prints the updated url. The browser handles redirects (i.e. takes them). You should always code your routes with both a start/end slash.
+
 @app.route('/api/getmsg/', methods=['GET'])
 def respond():
     # Retrieve the msg from url parameter of GET request 
@@ -60,10 +115,10 @@ def respond():
 
 @app.route('/api/keys/', methods=['POST']) 
 def postit(): 
-    '''
-    Implement a POST api for key management.
-    Note that flask handles request.method == OPTIONS for us automatically -- and calls after_request_func (above)after each request to satisfy CORS
-    '''
+    
+    #Implement a POST api for key management.
+    #Note that flask handles request.method == OPTIONS for us automatically -- and calls after_request_func (above)after each request to satisfy CORS
+    
     response = {}
     #only accept json content type
     if request.headers['content-type'] != 'application/json':
@@ -96,10 +151,13 @@ def index():
     #return app.send_static_file('index.html') 
 
 def main():
-    '''The threaded option for concurrent accesses, 0.0.0.0 host says listen to all network interfaces (leaving this off changes this to local (same host) only access, port is the port listened on -- this must be open in your firewall or mapped out if within a Docker container. In Heroku, the heroku runtime sets this value via the PORT environment variable (you are not allowed to hard code it) so set it from this variable and give a default value (8118) for when we execute locally.  Python will tell us if the port is in use.  Start by using a value > 8000 as these are likely to be available.
-    '''
+    #The threaded option for concurrent accesses, 0.0.0.0 host says listen to all network interfaces (leaving this off changes this to local (same host) only access, port is the port listened on -- this must be open in your firewall or mapped out if within a Docker container. In Heroku, the heroku runtime sets this value via the PORT environment variable (you are not allowed to hard code it) so set it from this variable and give a default value (8118) for when we execute locally.  Python will tell us if the port is in use.  Start by using a value > 8000 as these are likely to be available.
+ 
     localport = int(os.getenv("PORT", 8118))
     app.run(threaded=True, host='0.0.0.0', port=localport)
 
 if __name__ == '__main__':
     main()
+'''
+
+
