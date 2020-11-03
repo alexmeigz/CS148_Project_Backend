@@ -81,8 +81,7 @@ def showProduct():
         "subscription": bool
     }   
     '''
-    id = request.args.get("id", None)
-    return product_controller.show(id)
+    return product_controller.show(request.args)
 
 # Set the base route to be the react index.html
 @app.route('/')
