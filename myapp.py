@@ -55,6 +55,7 @@ def createProduct():
     subscription: bool (required)
     price: float (required)
     location: str (optional)
+    frequency: int (optional)
     
     RESPONSE: (if successful)
     {
@@ -83,10 +84,40 @@ def showProduct():
     '''
     return product_controller.show(request.args)
 
+@app.route('/api/product/', methods=['PATCH'])
+def updateProduct():
+    '''
+    PATCH PARAMS:
+    id = product_id (required)
+    product_name: str (required)
+    subscription: bool (required)
+    price: float (required)
+    location: str (optional)
+    frequency: int (optional)
+    
+    RESPONSE: (if successful) 
+    {
+        "message": "Product sucessfully updated"
+    }   
+    '''
+    return product_controller.update(request.args)
+
+@app.route('/api/product/', methods=['DELETE'])
+def deleteProduct():
+    '''
+    DELETE PARAMS:
+    id = product_id (required)
+    
+    RESPONSE: (if successful) 
+    {
+        "message": "Product sucessfully removed"
+    }   
+    '''
+    return product_controller.delete(request.args)
+
 # Set the base route to be the react index.html
 @app.route('/')
-def index():
-    return "<h1> Welcome to the Masterchef Kitchen !!</h1>",200
+    return "<h1> Welcome to the Masterchef Kitchen !!</h1>", 200
 
     #use this instead if linking to a raact app on the same server
     #make sure and xupdate the app = Flask(...) line above for the same
@@ -101,4 +132,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    #hello world

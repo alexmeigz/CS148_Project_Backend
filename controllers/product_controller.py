@@ -36,7 +36,7 @@ def create(params):
             productFields["price"] = float(productFields["price"])
             productFields["frequency"] = int(productFields["frequency"])
         except:
-            response["message"] = "Floating Point Error"
+            response["message"] = "Request has incorrect parameter type"
             status = 400
             return jsonify(response), status
 
@@ -103,8 +103,99 @@ def show(params):
 
     return jsonify(response), status
 
-def update():
-    return
+def update(params):
+    #Initialize
+    response = {}
+    requiredFields = ["id", "product_name", "subscription", "price"]
+    optionalFields = ["location", "frequency"]
+    allFields = requiredFields + optionalFields
+    productFields = {}
 
-def delete():
-    return
+    #Check for Required Fields
+    for field in requiredFields:
+        if params.get(field, None) == None:
+            response["message"] = "Missing Required Parameters: {}".format(requiredFields)
+            status = 400
+            return jsonify(response), status
+        productFields[field] = params.get(field, None)
+
+    #Check for Optional Fields
+        for field in optionalFields:
+            productFields[field] = params.get(field, None)
+
+    #Check for Invalid Parameters
+    if base_controller.verify(params, allFields): 
+        response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
+        status = 400
+    else:
+        #Query for Product
+        product = models.Product.query.filter_by(id=productFields["id"]).first()     
+
+        if product is not None:
+            #Check for Numerical Price and Frequency
+            try:
+                productFields["price"] = float(productFields["price"])
+                productFields["frequency"] = int(productFields["frequency"])
+            except:
+                response["message"] = "Request has incorrect parameter type"
+                status = 400
+                return jsonify(response), status
+
+            #Update Product
+            product.name = productFields["product_name"]
+            product.subscription = productFields["subscription"] == "True"
+            product.frequency = datetime.timedelta(days=productFields["frequency"])
+            product.price = productFields["price"]
+            product.location = productFields["location"]
+            models.db.session.commit()
+            
+            #Query Successful
+            response["message"] = "Product successfully updated"
+            status = 200
+        else:
+            #Query Unsuccessful
+            response["message"] = "Product cannot be found"
+            status = 200
+
+    return jsonify(response), status
+
+def delete(params):
+    #Initialize
+    response = {}
+    requiredFields = ["id"]
+    optionalFields = []
+    allFields = requiredFields + optionalFields
+    productFields = {}
+
+    #Check for Required Fields
+    for field in requiredFields:
+        if params.get(field, None) == None:
+            response["message"] = "Missing Required Parameters: {}".format(requiredFields)
+            status = 400
+            return jsonify(response), status
+        productFields[field] = params.get(field, None)
+        
+    #Check for Optional Fields
+    for field in optionalFields:
+        productFields[field] = params.get(field, None)
+
+    #Check for Invalid Parameters
+    if base_controller.verify(params, allFields): 
+        response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
+        status = 400
+    else:
+        #Query for Product
+        product = models.Product.query.filter_by(id=productFields["id"]).first()
+        
+        if product is not None:
+            #Query Successful
+            models.db.session.delete(product)
+            models.db.session.commit()
+            response["message"] = "Product successfully removed"
+            status = 200
+        else:
+            #Query Unsuccessful
+            response["message"] = "Product cannot be found"
+            status = 200
+
+    return jsonify(response), status
