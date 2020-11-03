@@ -117,6 +117,7 @@ def deleteProduct():
 
 # Set the base route to be the react index.html
 @app.route('/')
+def index():
     return "<h1> Welcome to the Masterchef Kitchen !!</h1>", 200
 
     #use this instead if linking to a raact app on the same server

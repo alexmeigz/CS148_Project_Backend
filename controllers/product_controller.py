@@ -6,7 +6,7 @@ import time, datetime
 def create(params): 
     #Initialize
     response = {}
-    requiredFields = ["product_name", "subscription", "price"]
+    requiredFields = ["vendor_id", "product_name", "subscription", "price"]
     optionalFields = ["location", "frequency"]
     allFields = requiredFields + optionalFields
     productFields = {}
@@ -34,6 +34,7 @@ def create(params):
         #Check for Numerical Price and Frequency
         try:
             productFields["price"] = float(productFields["price"])
+            productFields["vendor_id"] = int(productFields["vendor_id"])
             productFields["frequency"] = int(productFields["frequency"])
         except:
             response["message"] = "Request has incorrect parameter type"
@@ -43,6 +44,7 @@ def create(params):
         #Add Product to Database
         productFields["subscription"] = productFields["subscription"] == "True"
         product = models.Product(
+            vendor_id=productFields["vendor_id"],
             name=productFields["product_name"],
             subscription=productFields["subscription"],
             price=productFields["price"],

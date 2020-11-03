@@ -29,6 +29,7 @@ class Product(db.Model):
     __tablename__ = 'product'
 
     id = db.Column(db.Integer, primary_key = True)
+    vendor_id = db.Column(db.Integer)
     name = db.Column(db.Text)
     subscription = db.Column(db.Boolean)
     frequency = db.Column(db.Interval)
