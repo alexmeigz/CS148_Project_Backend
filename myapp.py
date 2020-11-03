@@ -13,6 +13,16 @@ from models import models
 #app = Flask(__name__, static_folder='./build', static_url_path='/')
 app = Flask(__name__)
 DEBUG=True
+POSTGRES = {
+    'user': 'postgres',
+    'pw': 'password',
+    'db': 'cs148db',
+    'host': 'localhost',
+    'port': '5432',
+}
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
+    %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
+models.db.init_app(app)
 
 ### CORS section
 @app.after_request
@@ -80,7 +90,7 @@ def index():
     return "<h1> Welcome to the Masterchef Kitchen !!</h1>",200
 
     #use this instead if linking to a raact app on the same server
-    #make sure and update the app = Flask(...) line above for the same
+    #make sure and xupdate the app = Flask(...) line above for the same
     #return app.send_static_file('index.html') 
 
 def main():
@@ -88,17 +98,6 @@ def main():
     '''
     localport = int(os.getenv("PORT", 8118))
     app.config['DEBUG'] = True
-
-    POSTGRES = {
-    'user': 'postgres',
-    'pw': 'password',
-    'db': 'nutriflix',
-    'host': 'localhost',
-    'port': '5432',
-    }
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
-    %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
-    models.db.init_app(app)
     app.run(threaded=True, host='0.0.0.0', port=localport)
 
 if __name__ == '__main__':

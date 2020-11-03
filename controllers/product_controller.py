@@ -1,4 +1,5 @@
 from flask import jsonify
+from models import models
 from controllers import base_controller
 import time, datetime
 
@@ -23,13 +24,20 @@ def create(params):
         response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
         status = 400
     else:
-        try:
+        #try:
             productFields["price"] = float(productFields["price"])
+            productFields["subscription"] = productFields["subscription"] == "True"
+            product = models.Product(name=productFields["product_name"],
+                            subscription=productFields["subscription"],
+                            price=productFields["price"])
+            models.db.session.add(product)
+            models.db.session.commit()
             response["message"] = "Product created successfully!"
             status = 200
-        except:
-            response["message"] = "Price Parameter not a Float type"
-            status = 400
+        #except Exception as error:
+           # print(error)
+            #response["message"] = error
+            #status = 400
   
     return response
 

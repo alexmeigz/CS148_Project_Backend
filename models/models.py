@@ -1,7 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
-
 #Base Code Acquired from https://blog.theodo.com/2017/03/developping-a-flask-web-app-with-a-postresql-database-making-all-the-possible-errors/
 class BaseModel(db.Model):
     '''Base data model for all objects'''
@@ -23,3 +22,17 @@ class BaseModel(db.Model):
             column: value if not isinstance(value, datetime.date) else value.strftime('%Y-%m-%d')
             for column, value in self._to_dict().items()
         }
+
+class Product(db.Model):
+    """Model for the stations table"""
+    
+    __tablename__ = 'product'
+
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.Text)
+    subscription = db.Column(db.Boolean)
+    frequency = db.Column(db.Interval)
+    price = db.Column(db.Float)
+    list_date = db.Column(db.Date)
+    location = db.Column(db.Text)
+    nutrition_id = db.Column(db.Integer)
