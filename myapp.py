@@ -62,7 +62,10 @@ def createProduct():
         "message": "Product created successfully!"
     }
     '''
-    return product_controller.create(request.args)
+    if(request.args.get("test", None)):
+        return product_controller.add_test_data()
+    else:
+        return product_controller.create(request.args)
 
 @app.route('/api/product/', methods=['GET'])
 def showProduct():
