@@ -3,6 +3,21 @@ from models import models
 from controllers import base_controller
 import time, datetime
 
+def add_test_data():
+    products = ["Avocado Toast", "Vanilla French Toast", "Lobster and Filet", "Cha Siu Chicken Wings", 
+                "Smoked Salmon Salad"]
+    for i in range(1000, 1100):
+        product = models.Product(
+            vendor_id=i,
+            name=products[i%5],
+            subscription=i%2,
+            price=i%19,
+            list_date=datetime.date.today()
+            )
+        models.db.session.add(product)
+    models.db.session.commit()
+    return {}, 200
+
 def create(params): 
     #Initialize
     response = {}
