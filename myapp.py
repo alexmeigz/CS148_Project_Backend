@@ -13,6 +13,16 @@ from models import models
 #app = Flask(__name__, static_folder='./build', static_url_path='/')
 app = Flask(__name__)
 DEBUG=True
+POSTGRES = {
+    'user': 'postgres',
+    'pw': 'password',
+    'db': 'cs148db',
+    'host': 'localhost',
+    'port': '5432',
+}
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
+    %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
+models.db.init_app(app)
 
 ### CORS section
 @app.after_request
@@ -45,13 +55,17 @@ def createProduct():
     subscription: bool (required)
     price: float (required)
     location: str (optional)
+    frequency: int (optional)
     
     RESPONSE: (if successful)
     {
         "message": "Product created successfully!"
     }
     '''
-    return product_controller.create(request.args)
+    if(request.args.get("test", None)):
+        return product_controller.add_test_data()
+    else:
+        return product_controller.create(request.args)
 
 @app.route('/api/product/', methods=['GET'])
 def showProduct():
@@ -71,16 +85,46 @@ def showProduct():
         "subscription": bool
     }   
     '''
-    id = request.args.get("id", None)
-    return product_controller.show(id)
+    return product_controller.show(request.args)
+
+@app.route('/api/product/', methods=['PATCH'])
+def updateProduct():
+    '''
+    PATCH PARAMS:
+    id = product_id (required)
+    product_name: str (required)
+    subscription: bool (required)
+    price: float (required)
+    location: str (optional)
+    frequency: int (optional)
+    
+    RESPONSE: (if successful) 
+    {
+        "message": "Product sucessfully updated"
+    }   
+    '''
+    return product_controller.update(request.args)
+
+@app.route('/api/product/', methods=['DELETE'])
+def deleteProduct():
+    '''
+    DELETE PARAMS:
+    id = product_id (required)
+    
+    RESPONSE: (if successful) 
+    {
+        "message": "Product sucessfully removed"
+    }   
+    '''
+    return product_controller.delete(request.args)
 
 # Set the base route to be the react index.html
 @app.route('/')
 def index():
-    return "<h1> Welcome to the Masterchef Kitchen !!</h1>",200
+    return "<h1> Welcome to the Masterchef Kitchen !!</h1>", 200
 
     #use this instead if linking to a raact app on the same server
-    #make sure and update the app = Flask(...) line above for the same
+    #make sure and xupdate the app = Flask(...) line above for the same
     #return app.send_static_file('index.html') 
 
 def main():
@@ -88,19 +132,7 @@ def main():
     '''
     localport = int(os.getenv("PORT", 8118))
     app.config['DEBUG'] = True
-
-    POSTGRES = {
-    'user': 'postgres',
-    'pw': 'password',
-    'db': 'nutriflix',
-    'host': 'localhost',
-    'port': '5432',
-    }
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
-    %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
-    models.db.init_app(app)
     app.run(threaded=True, host='0.0.0.0', port=localport)
 
 if __name__ == '__main__':
     main()
-    #hello world
