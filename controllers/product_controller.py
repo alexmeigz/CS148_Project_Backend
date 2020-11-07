@@ -120,6 +120,24 @@ def show(params):
 
     return jsonify(response), status
 
+def display_all():
+    products = models.Product.query.all()
+    response = {}
+    for product in products:
+        response[product.id] = {
+            "frequency": str(product.frequency),
+            "list_date": str(product.list_date),
+            "location": product.location,
+            "nutrition_id": product.nutrition_id,
+            "price": str(product.price),
+            "product_id": product.id,
+            "product_name": product.name,
+            "subscription": product.subscription
+        }
+    status = 200
+
+    return jsonify(response), status
+
 def update(params):
     #Initialize
     response = {}

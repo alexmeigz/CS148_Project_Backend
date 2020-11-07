@@ -85,7 +85,10 @@ def showProduct():
         "subscription": bool
     }   
     '''
-    return product_controller.show(request.args)
+    if(request.args.get("display_all", None)):
+        return product_controller.display_all()
+    else:
+        return product_controller.show(request.args)
 
 @app.route('/api/product/', methods=['PATCH'])
 def updateProduct():
