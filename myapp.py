@@ -87,6 +87,26 @@ def showProduct():
     '''
     return product_controller.show(request.args)
 
+    @app.route('/api/product/', methods=['GET'])
+def showApplication():
+    '''
+    GET PARAMS:
+    id = product_id (required)
+    
+    RESPONSE: (if successful) 
+    {
+        "frequency": str(datetime.timedelta),
+        "list_date": datetime,
+        "location": str,
+        "nutrition_id": int,
+        "price": str (includes currency symbol),
+        "product_id": int,
+        "product_name": str,
+        "subscription": bool
+    }   
+    '''
+    return application_controller.show(request.args)
+
 @app.route('/api/product/', methods=['PATCH'])
 def updateProduct():
     '''
