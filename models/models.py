@@ -37,3 +37,17 @@ class Product(db.Model):
     list_date = db.Column(db.Date)
     location = db.Column(db.Text)
     nutrition_id = db.Column(db.Integer)
+
+
+class User(db.Model):
+    """Model for the users"""
+    
+    __tablename__ = 'user'
+
+    user_id = db.Column(db.Integer, primary_key = True)
+    username = db.Column(db.Text)
+    email = db.Column(db.Text)
+    account_type = db.Column(db.Text)
+    vendor_location = db.Column(db.Text, nullable = True)
+    #vendor_product_list = db.Column(ARRAY(db.Text)) #https://groups.google.com/g/sqlalchemy/c/5aTmT4rUJo4?pli=1
+    #credits = db.Column(db.Integer)
