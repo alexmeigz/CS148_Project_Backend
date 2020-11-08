@@ -86,7 +86,7 @@ def showProduct():
     }   
     '''
     if(request.args.get("display_all", None)):
-        return product_controller.display_all()
+        return product_controller.display_all(request.args)
     else:
         return product_controller.show(request.args)
 

@@ -120,8 +120,13 @@ def show(params):
 
     return jsonify(response), status
 
-def display_all():
-    products = models.Product.query.all()
+def display_all(params):
+    q = models.Product.query.filter(models.Product.name.contains(params["product_name"]))
+    if(params.get("subscription", None) != None):
+        products = q.filter_by(subscription=params["subscription"]).all()
+    else:
+        products = q.all()
+    
     response = {}
     for product in products:
         response[product.id] = {
