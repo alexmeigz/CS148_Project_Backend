@@ -38,3 +38,19 @@ class Product(db.Model):
     list_date = db.Column(db.Date)
     location = db.Column(db.Text)
     nutrition_id = db.Column(db.Integer)
+
+class Post(db.Model):
+    """Model for the stations table"""
+    
+    __tablename__ = 'post'
+
+    post_id = db.Column(db.Integer, primary_key = True)
+    post_type = db.Column(db.Text)          #one of ["blog", "recipe", "review"]
+    title = db.Column(db.Text)
+    content = db.Column(db.Text)            #only for blog/review (in binary)
+    rating = db.Column(db.Float)            #only for review
+    caption = db.Column(db.Text)            #only for recipe
+    ingredients = db.Column(db.Text)        #only for recipe
+    instructions = db.Column(db.Text)       #only for recipe
+    last_edit = db.Column(db.DateTime)
+

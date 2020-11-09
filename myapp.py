@@ -6,7 +6,7 @@
 
 import os, json
 from flask import Flask, request, jsonify, make_response
-from controllers import product_controller
+from controllers import product_controller, post_controller
 from models import models
 
 #use this if linking to a reaact app on the same server
@@ -120,6 +120,19 @@ def deleteProduct():
     }   
     '''
     return product_controller.delete(request.args)
+
+@app.route('/api/post/', methods=['POST'])
+def createPost():
+    if(not request.args.get("type", None)):
+        return {"message" : "Missing Required Parameter: type"}, 400
+    elif(request.args["type"].lower() == "blog"):
+        return post_controller.blog_create(request.args, request.data)
+    elif(request.args["type"].lower() == "review"):
+        return post_controller.review_create(request.args, request.data)
+    elif(request.args["type"].lower() == "recipe"):
+        return post_controller.recipe_create(request.args, request.data)
+    else:
+        return {"message" : "Parameter type must have value 'post', 'recipe', or 'review'"}, 400
 
 # Set the base route to be the react index.html
 @app.route('/')
