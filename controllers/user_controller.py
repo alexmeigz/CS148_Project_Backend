@@ -2,6 +2,9 @@ from flask import jsonify
 from models import models
 from controllers import base_controller
 import time, datetime
+from app import login
+from flask_login import current_user, login_user
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 def create(params): 
@@ -197,3 +200,10 @@ def delete(params):
             status = 200
 
     return jsonify(response), status
+
+
+
+
+@login.user_loader
+def load_user(id):
+    return models.User.query.get(int(id))

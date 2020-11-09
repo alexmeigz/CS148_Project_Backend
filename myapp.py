@@ -63,7 +63,12 @@ def logout():
 import os, json
 from flask import Flask, request, jsonify, make_response
 from controllers import product_controller
+from controllers import product_controller
 from models import models
+from flask_login import current_user, login_user, logout_user
+from flask_login import LoginManager
+from werkzeug.urls import url_parse
+from forms import RegistrationForm
 
 #use this if linking to a reaact app on the same server
 #app = Flask(__name__, static_folder='./build', static_url_path='/')
@@ -78,6 +83,10 @@ POSTGRES = {
 }
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
     %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
+
+login = LoginManager(app) # for logging in
+login.login_view = 'login'
+
 models.db.init_app(app)
 
 ### CORS section
@@ -122,6 +131,8 @@ def respond():
     else: #valid message
         response["MESSAGE"] = f"Welcome {msg}!"
         status = 200
+
+##### Start of Product routes 
 @app.route('/api/product/', methods=['POST'])
 def createProduct():
     '''
@@ -192,6 +203,48 @@ def deleteProduct():
     }   
     '''
     return product_controller.delete(request.args)
+
+###End of Product routes ###
+
+## Start of User routes
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = models.User.query.filter_by(username=form.username.data).first()
+        if user is None or not user.check_password(form.password.data):
+            flash('Invalid username or password')
+            return redirect(url_for('login')) #FLAG: if login failed, redirect to login page, 
+        login_user(user, remember=form.remember_me.data)
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('index')
+        return redirect(next_page) #FLAG: if login success, redirect to the original page
+    return render_template('login.html', title='Sign In', form=form)
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index')) #FLAG: redirect to main index page
+
+def register(): ##FLAG: WATCH OUT, NEED TO CHANGE THIS FUNC SOON TO MATCH THE REST OF THE APP, esp db commands here!!
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(username=form.username.data, email=form.email.data)
+        user.set_password(form.password.data)
+        db.session.add(user) #FLAG
+        db.session.commit()
+        flash('Congratulations, you are now a registered user!')
+        return redirect(url_for('login'))
+    return render_template('register.html', title='Register', form=form)
+
+### End of User routes ###
+
 
 # Set the base route to be the react index.html
 @app.route('/')

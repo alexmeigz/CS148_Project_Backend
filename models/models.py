@@ -1,4 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin #for user login
+from werkzeug.security import generate_password_hash, check_password_hash # for pwd hashing
 
 db = SQLAlchemy()
 #Base Code Acquired from https://blog.theodo.com/2017/03/developping-a-flask-web-app-with-a-postresql-database-making-all-the-possible-errors/
@@ -39,7 +41,7 @@ class Product(db.Model):
     nutrition_id = db.Column(db.Integer)
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     """Model for the users"""
     
     __tablename__ = 'user'
@@ -51,3 +53,9 @@ class User(db.Model):
     vendor_location = db.Column(db.Text, nullable = True)
     #vendor_product_list = db.Column(ARRAY(db.Text)) #https://groups.google.com/g/sqlalchemy/c/5aTmT4rUJo4?pli=1
     #credits = db.Column(db.Integer)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
