@@ -230,6 +230,7 @@ def logout():
     logout_user()
     return redirect(url_for('index')) #FLAG: redirect to main index page
 
+@app.route('/register', methods=['GET', 'POST'])
 def register(): ##FLAG: WATCH OUT, NEED TO CHANGE THIS FUNC SOON TO MATCH THE REST OF THE APP, esp db commands here!!
     if current_user.is_authenticated:
         return redirect(url_for('index'))
