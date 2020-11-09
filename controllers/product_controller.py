@@ -12,7 +12,8 @@ def add_test_data():
             name=products[i%5],
             subscription=i%2,
             price=i%19,
-            list_date=datetime.date.today()
+            list_date=datetime.date.today(),
+            caption="hello world"
             )
         models.db.session.add(product)
     models.db.session.commit()
@@ -21,7 +22,7 @@ def add_test_data():
 def create(params): 
     #Initialize
     response = {}
-    requiredFields = ["vendor_id", "product_name", "subscription", "price"]
+    requiredFields = ["vendor_id", "product_name", "subscription", "price", "caption"]
     optionalFields = ["location", "frequency"]
     allFields = requiredFields + optionalFields
     productFields = {}
@@ -65,7 +66,8 @@ def create(params):
             price=productFields["price"],
             location=productFields["location"],
             frequency=datetime.timedelta(days=productFields["frequency"]),
-            list_date=datetime.date.today()
+            list_date=datetime.date.today(),
+            caption=productFields["caption"]
             )
         models.db.session.add(product)
         models.db.session.commit()
@@ -106,6 +108,7 @@ def show(params):
             #Query Successful
             response["id"] = product.id
             response["product_name"] = product.name
+            response["caption"] = product.caption
             response["subscription"] = product.subscription
             response["frequency"] = str(product.frequency)
             response["price"] = product.price
@@ -130,6 +133,7 @@ def display_all(params):
     response = {}
     for product in products:
         response[product.id] = {
+            "caption" : product.caption,
             "frequency": str(product.frequency),
             "list_date": str(product.list_date),
             "location": product.location,
@@ -146,7 +150,7 @@ def display_all(params):
 def update(params):
     #Initialize
     response = {}
-    requiredFields = ["id", "product_name", "subscription", "price"]
+    requiredFields = ["id", "product_name", "subscription", "price", "caption"]
     optionalFields = ["location", "frequency"]
     allFields = requiredFields + optionalFields
     productFields = {}
@@ -183,6 +187,7 @@ def update(params):
 
             #Update Product
             product.name = productFields["product_name"]
+            product.caption = productFields["caption"]
             product.subscription = productFields["subscription"] == "True"
             product.frequency = datetime.timedelta(days=productFields["frequency"])
             product.price = productFields["price"]

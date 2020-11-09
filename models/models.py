@@ -31,6 +31,7 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     vendor_id = db.Column(db.Integer)
     name = db.Column(db.Text)
+    caption = db.Column(db.Text)
     subscription = db.Column(db.Boolean)
     frequency = db.Column(db.Interval)
     price = db.Column(db.Float)
