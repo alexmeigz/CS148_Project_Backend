@@ -6,7 +6,7 @@
 
 import os, json
 from flask import Flask, request, jsonify, make_response
-from controllers import product_controller
+from controllers import product_controller, appl_controller
 from models import models
 
 #use this if linking to a reaact app on the same server
@@ -47,7 +47,7 @@ def after_request_func(response):
     return response
 ### end CORS section
 
-@app.route('/api/product/', methods=['POST'])
+@app.route('/api/application/', methods=['POST'])
 def createProduct():
     '''
     POST PARAMS:
@@ -62,12 +62,12 @@ def createProduct():
         "message": "Product created successfully!"
     }
     '''
-    if(request.args.get("test", None)):
-        return product_controller.add_test_data()
-    else:
-        return product_controller.create(request.args)
+    # if(request.args.get("test", None)):
+    #     return appl_controller.add_test_data()
+    # else:
+    return appl_controller.create(request.args)
 
-@app.route('/api/product/', methods=['GET'])
+@app.route('/api/application/', methods=['GET'])
 def showProduct():
     '''
     GET PARAMS:
@@ -85,9 +85,9 @@ def showProduct():
         "subscription": bool
     }   
     '''
-    return product_controller.show(request.args)
+    return appl_controller.show(request.args)
 
-    @app.route('/api/product/', methods=['GET'])
+@app.route('/api/application/', methods=['GET'])
 def showApplication():
     '''
     GET PARAMS:
@@ -105,9 +105,9 @@ def showApplication():
         "subscription": bool
     }   
     '''
-    return application_controller.show(request.args)
+    return appl_controller.show(request.args)
 
-@app.route('/api/product/', methods=['PATCH'])
+@app.route('/api/application/', methods=['PATCH'])
 def updateProduct():
     '''
     PATCH PARAMS:
@@ -123,9 +123,9 @@ def updateProduct():
         "message": "Product sucessfully updated"
     }   
     '''
-    return product_controller.update(request.args)
+    return appl_controller.update(request.args)
 
-@app.route('/api/product/', methods=['DELETE'])
+@app.route('/api/application/', methods=['DELETE'])
 def deleteProduct():
     '''
     DELETE PARAMS:
@@ -136,7 +136,7 @@ def deleteProduct():
         "message": "Product sucessfully removed"
     }   
     '''
-    return product_controller.delete(request.args)
+    return appl_controller.delete(request.args)
 
 # Set the base route to be the react index.html
 @app.route('/')

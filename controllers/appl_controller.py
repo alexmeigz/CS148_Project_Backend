@@ -124,8 +124,8 @@ def display_all():
             "busLocation": application.busLocation,
             "application_id": application.id,
             "user_id": application.user_id,
-            "restName": application.restName
-            "reason": application.reason
+            "restName": application.restName,
+            "reason": application.reason,
             "vendorType": application.vendorType
         }
     status = 200
@@ -134,7 +134,7 @@ def display_all():
 def update(params):
     #Initialize
     response = {}
-    requiredFields = ["user_id", "restName", "vendorType", "reason"]
+    requiredFields = ["id", "user_id", "restName", "vendorType", "reason"]
     optionalFields = ["busLocation"]
     allFields = requiredFields + optionalFields
     applFields = {}
@@ -172,6 +172,7 @@ def update(params):
             application.restName = applFields["restName"]
             application.user_id = applFields["user_id"]
             application.vendorType = applFields["vendorType"]
+            application.reason = applFields["reason"]
             application.busLocation = applFields["busLocation"]
             models.db.session.commit()
             
@@ -213,7 +214,7 @@ def delete(params):
         #Query for Product
         application = models.Application.query.filter_by(id=applFields["id"]).first()
         
-        if product is not None:
+        if application is not None:
             #Query Successful
             models.db.session.delete(application)
             models.db.session.commit()
