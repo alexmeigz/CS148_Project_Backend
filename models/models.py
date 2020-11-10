@@ -37,3 +37,16 @@ class Product(db.Model):
     list_date = db.Column(db.Date)
     location = db.Column(db.Text)
     nutrition_id = db.Column(db.Integer)
+
+class Application(db.Model):
+    """Model for the stations table"""
+    
+    __tablename__ = 'application'
+
+    id = db.Column(db.Integer, primary_key = True)
+    user_id = db.Column(db.Integer)
+    restName = db.Column(db.Text)
+    vendorType = db.Column(db.Text)
+    applsDate = db.Column(db.Date)
+    busLocation = db.Column(db.Text)
+    reason = db.Column(db.Text)
