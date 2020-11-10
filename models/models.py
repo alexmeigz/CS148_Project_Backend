@@ -54,3 +54,15 @@ class Post(db.Model):
     instructions = db.Column(db.Text)       #only for recipe
     last_edit = db.Column(db.DateTime)
 
+class Application(db.Model):
+    """Model for the stations table"""
+    
+    __tablename__ = 'application'
+
+    id = db.Column(db.Integer, primary_key = True)
+    user_id = db.Column(db.Integer)
+    restName = db.Column(db.Text)
+    vendorType = db.Column(db.Text)
+    applsDate = db.Column(db.Date)
+    busLocation = db.Column(db.Text)
+    reason = db.Column(db.Text)

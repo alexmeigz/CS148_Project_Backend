@@ -6,7 +6,7 @@
 
 import os, json
 from flask import Flask, request, jsonify, make_response
-from controllers import product_controller, post_controller
+from controllers import product_controller, post_controller, appl_controller
 from models import models
 
 #use this if linking to a reaact app on the same server
@@ -120,6 +120,25 @@ def deleteProduct():
     }   
     '''
     return product_controller.delete(request.args)
+
+@app.route('/api/application/', methods=['POST'])
+def createApplication():
+    return appl_controller.create(request.args)
+
+@app.route('/api/application/', methods=['GET'])
+def showApplication():
+    if(request.args.get("display_all", None)):
+        return appl_controller.display_all(request.args)
+    else:
+        return appl_controller.show(request.args)
+
+@app.route('/api/application/', methods=['PATCH'])
+def updateApplication():
+    return appl_controller.update(request.args)
+
+@app.route('/api/application/', methods=['DELETE'])
+def deleteApplication():
+    return appl_controller.delete(request.args)
 
 @app.route('/api/post/', methods=['POST'])
 def createPost():
