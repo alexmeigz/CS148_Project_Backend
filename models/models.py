@@ -1,4 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin #for user login
+from werkzeug.security import generate_password_hash, check_password_hash # for pwd hashing
 
 db = SQLAlchemy()
 #Base Code Acquired from https://blog.theodo.com/2017/03/developping-a-flask-web-app-with-a-postresql-database-making-all-the-possible-errors/
@@ -53,6 +55,26 @@ class Post(db.Model):
     ingredients = db.Column(db.Text)        #only for recipe
     instructions = db.Column(db.Text)       #only for recipe
     last_edit = db.Column(db.DateTime)
+
+class User(db.Model):
+    """Model for the users"""
+    
+    __tablename__ = 'users'
+
+    user_id = db.Column(db.Integer, primary_key = True)
+    username = db.Column(db.Text)
+    password_hash = db.Column(db.String(128))
+    email = db.Column(db.Text)
+    account_type = db.Column(db.Text)
+    vendor_location = db.Column(db.Text, nullable = True)
+    #vendor_product_list = db.Column(ARRAY(db.Text)) #https://groups.google.com/g/sqlalchemy/c/5aTmT4rUJo4?pli=1
+    #credits = db.Column(db.Integer)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 class Application(db.Model):
     """Model for the stations table"""
