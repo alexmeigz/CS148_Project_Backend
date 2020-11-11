@@ -153,6 +153,30 @@ def createPost():
     else:
         return {"message" : "Parameter type must have value 'post', 'recipe', or 'review'"}, 400
 
+@app.route('/api/post/', methods=['GET'])
+def showPost():
+    if(request.args.get("display_all", None)):
+        return post_controller.display_all(request.args)
+    else:
+        return post_controller.show(request.args)
+
+@app.route('/api/post/', methods=['PATCH'])
+def updatePost():
+    if(not request.args.get("type", None)):
+        return {"message" : "Missing Required Parameter: type"}, 400
+    elif(request.args["type"].lower() == "blog"):
+        return post_controller.blog_update(request.args, request.data)
+    elif(request.args["type"].lower() == "review"):
+        return post_controller.review_update(request.args, request.data)
+    elif(request.args["type"].lower() == "recipe"):
+        return post_controller.recipe_update(request.args, request.data)
+    else:
+        return {"message" : "Parameter type must have value 'post', 'recipe', or 'review'"}, 400
+
+@app.route('/api/post/', methods=['DELETE'])
+def deleteApp():
+    return post_controller.delete(request.args)
+
 # Set the base route to be the react index.html
 @app.route('/')
 def index():
