@@ -40,7 +40,6 @@ class Product(db.Model):
     location = db.Column(db.Text)
     nutrition_id = db.Column(db.Integer)
 
-
 class User(UserMixin, db.Model):
     """Model for the users"""
     
@@ -60,3 +59,16 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+class Application(db.Model):
+    """Model for the stations table"""
+    
+    __tablename__ = 'application'
+
+    id = db.Column(db.Integer, primary_key = True)
+    user_id = db.Column(db.Integer)
+    restName = db.Column(db.Text)
+    vendorType = db.Column(db.Text)
+    applsDate = db.Column(db.Date)
+    busLocation = db.Column(db.Text)
+    reason = db.Column(db.Text)

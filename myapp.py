@@ -62,8 +62,7 @@ def logout():
 
 import os, json
 from flask import Flask, request, jsonify, make_response
-from controllers import product_controller
-from controllers import user_controller
+from controllers import product_controller, appl_controller, user_controller
 from models import models
 from flask_login import current_user, login_user, logout_user
 from flask_login import LoginManager
@@ -112,27 +111,6 @@ def after_request_func(response):
     return response
 ### end CORS section
 
-
-#Note that flask automatically redirects routes without a final slash (/) to one with a final slash (e.g. /getmsg redirects to /getmsg/). Curl does not handle redirects but instead prints the updated url. The browser handles redirects (i.e. takes them). You should always code your routes with both a start/end slash.
-
-@app.route('/api/getmsg/', methods=['GET'])
-def respond():
-    # Retrieve the msg from url parameter of GET request 
-    # and return MESSAGE response (or error or success)
-    msg = request.args.get("msg", None)
-
-    if DEBUG:
-        print("GET respond() msg: {}".format(msg))
-
-    response = {}
-    if not msg: #invalid/missing message
-        response["MESSAGE"] = "no msg key found, please send a msg."
-        status = 400
-    else: #valid message
-        response["MESSAGE"] = f"Welcome {msg}!"
-        status = 200
-
-##### Start of Product routes 
 @app.route('/api/product/', methods=['POST'])
 def createProduct():
     '''
@@ -148,12 +126,12 @@ def createProduct():
         "message": "Product created successfully!"
     }
     '''
-    if(request.args.get("test", None)):
-        return product_controller.add_test_data()
-    else:
-        return product_controller.create(request.args)
+    # if(request.args.get("test", None)):
+    #     return appl_controller.add_test_data()
+    # else:
+    return appl_controller.create(request.args)
 
-@app.route('/api/product/', methods=['GET'])
+@app.route('/api/application/', methods=['GET'])
 def showProduct():
     '''
     GET PARAMS:
@@ -171,9 +149,29 @@ def showProduct():
         "subscription": bool
     }   
     '''
-    return product_controller.show(request.args)
+    return appl_controller.show(request.args)
 
-@app.route('/api/product/', methods=['PATCH'])
+@app.route('/api/application/', methods=['GET'])
+def showApplication():
+    '''
+    GET PARAMS:
+    id = product_id (required)
+    
+    RESPONSE: (if successful) 
+    {
+        "frequency": str(datetime.timedelta),
+        "list_date": datetime,
+        "location": str,
+        "nutrition_id": int,
+        "price": str (includes currency symbol),
+        "product_id": int,
+        "product_name": str,
+        "subscription": bool
+    }   
+    '''
+    return appl_controller.show(request.args)
+
+@app.route('/api/application/', methods=['PATCH'])
 def updateProduct():
     '''
     PATCH PARAMS:
@@ -189,9 +187,9 @@ def updateProduct():
         "message": "Product sucessfully updated"
     }   
     '''
-    return product_controller.update(request.args)
+    return appl_controller.update(request.args)
 
-@app.route('/api/product/', methods=['DELETE'])
+@app.route('/api/application/', methods=['DELETE'])
 def deleteProduct():
     '''
     DELETE PARAMS:
@@ -202,7 +200,7 @@ def deleteProduct():
         "message": "Product sucessfully removed"
     }   
     '''
-    return product_controller.delete(request.args)
+    return appl_controller.delete(request.args)
 
 ###End of Product routes ###
 
@@ -286,4 +284,7 @@ def main():
 if __name__ == '__main__':
     main()
 
-
+    
+    
+    
+    
