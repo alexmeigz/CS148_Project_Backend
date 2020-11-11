@@ -62,7 +62,7 @@ def logout():
 
 import os, json
 from flask import Flask, request, jsonify, make_response
-from controllers import product_controller, appl_controller, user_controller
+from controllers import product_controller, post_controller, appl_controller, user_controller
 from models import models
 from flask_login import current_user, login_user, logout_user
 from flask_login import LoginManager
@@ -126,12 +126,12 @@ def createProduct():
         "message": "Product created successfully!"
     }
     '''
-    # if(request.args.get("test", None)):
-    #     return appl_controller.add_test_data()
-    # else:
-    return appl_controller.create(request.args)
+    if(request.args.get("test", None)):
+        return product_controller.add_test_data()
+    else:
+        return product_controller.create(request.args)
 
-@app.route('/api/application/', methods=['GET'])
+@app.route('/api/product/', methods=['GET'])
 def showProduct():
     '''
     GET PARAMS:
@@ -149,29 +149,12 @@ def showProduct():
         "subscription": bool
     }   
     '''
-    return appl_controller.show(request.args)
+    if(request.args.get("display_all", None)):
+        return product_controller.display_all(request.args)
+    else:
+        return product_controller.show(request.args)
 
-@app.route('/api/application/', methods=['GET'])
-def showApplication():
-    '''
-    GET PARAMS:
-    id = product_id (required)
-    
-    RESPONSE: (if successful) 
-    {
-        "frequency": str(datetime.timedelta),
-        "list_date": datetime,
-        "location": str,
-        "nutrition_id": int,
-        "price": str (includes currency symbol),
-        "product_id": int,
-        "product_name": str,
-        "subscription": bool
-    }   
-    '''
-    return appl_controller.show(request.args)
-
-@app.route('/api/application/', methods=['PATCH'])
+@app.route('/api/product/', methods=['PATCH'])
 def updateProduct():
     '''
     PATCH PARAMS:
@@ -187,9 +170,9 @@ def updateProduct():
         "message": "Product sucessfully updated"
     }   
     '''
-    return appl_controller.update(request.args)
+    return product_controller.update(request.args)
 
-@app.route('/api/application/', methods=['DELETE'])
+@app.route('/api/product/', methods=['DELETE'])
 def deleteProduct():
     '''
     DELETE PARAMS:
@@ -200,8 +183,63 @@ def deleteProduct():
         "message": "Product sucessfully removed"
     }   
     '''
+    return product_controller.delete(request.args)
+
+@app.route('/api/application/', methods=['POST'])
+def createApplication():
+    return appl_controller.create(request.args)
+
+@app.route('/api/application/', methods=['GET'])
+def showApplication():
+    if(request.args.get("display_all", None)):
+        return appl_controller.display_all(request.args)
+    else:
+        return appl_controller.show(request.args)
+
+@app.route('/api/application/', methods=['PATCH'])
+def updateApplication():
+    return appl_controller.update(request.args)
+
+@app.route('/api/application/', methods=['DELETE'])
+def deleteApplication():
     return appl_controller.delete(request.args)
 
+@app.route('/api/post/', methods=['POST'])
+def createPost():
+    if(not request.args.get("type", None)):
+        return {"message" : "Missing Required Parameter: type"}, 400
+    elif(request.args["type"].lower() == "blog"):
+        return post_controller.blog_create(request.args, request.data)
+    elif(request.args["type"].lower() == "review"):
+        return post_controller.review_create(request.args, request.data)
+    elif(request.args["type"].lower() == "recipe"):
+        return post_controller.recipe_create(request.args, request.data)
+    else:
+        return {"message" : "Parameter type must have value 'post', 'recipe', or 'review'"}, 400
+
+@app.route('/api/post/', methods=['GET'])
+def showPost():
+    if(request.args.get("display_all", None)):
+        return post_controller.display_all(request.args)
+    else:
+        return post_controller.show(request.args)
+
+@app.route('/api/post/', methods=['PATCH'])
+def updatePost():
+    if(not request.args.get("type", None)):
+        return {"message" : "Missing Required Parameter: type"}, 400
+    elif(request.args["type"].lower() == "blog"):
+        return post_controller.blog_update(request.args, request.data)
+    elif(request.args["type"].lower() == "review"):
+        return post_controller.review_update(request.args, request.data)
+    elif(request.args["type"].lower() == "recipe"):
+        return post_controller.recipe_update(request.args, request.data)
+    else:
+        return {"message" : "Parameter type must have value 'post', 'recipe', or 'review'"}, 400
+
+@app.route('/api/post/', methods=['DELETE'])
+def deleteApp():
+    return post_controller.delete(request.args)
 ###End of Product routes ###
 
 ## Start of User routes

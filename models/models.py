@@ -33,6 +33,7 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     vendor_id = db.Column(db.Integer)
     name = db.Column(db.Text)
+    caption = db.Column(db.Text)
     subscription = db.Column(db.Boolean)
     frequency = db.Column(db.Interval)
     price = db.Column(db.Float)
@@ -40,7 +41,22 @@ class Product(db.Model):
     location = db.Column(db.Text)
     nutrition_id = db.Column(db.Integer)
 
-class User(UserMixin, db.Model):
+class Post(db.Model):
+    """Model for the stations table"""
+    
+    __tablename__ = 'post'
+
+    post_id = db.Column(db.Integer, primary_key = True)
+    post_type = db.Column(db.Text)          #one of ["blog", "recipe", "review"]
+    title = db.Column(db.Text)
+    content = db.Column(db.Text)            #only for blog/review (in binary)
+    rating = db.Column(db.Float)            #only for review
+    caption = db.Column(db.Text)            #only for recipe
+    ingredients = db.Column(db.Text)        #only for recipe
+    instructions = db.Column(db.Text)       #only for recipe
+    last_edit = db.Column(db.DateTime)
+
+class User(db.Model):
     """Model for the users"""
     
     __tablename__ = 'users'
