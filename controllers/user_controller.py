@@ -2,7 +2,7 @@ from flask import jsonify
 from models import models
 from controllers import base_controller
 import time, datetime
-from app import login
+#from app import login
 from flask_login import current_user, login_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -10,7 +10,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 def create(params): 
     #Initialize
     response = {}
-    requiredFields = ["username", "email", "account_type"]
+    requiredFields = ["username", "email", "account_type", "password_hash"]
     optionalFields = ["vendor_location"]
     allFields = requiredFields + optionalFields
     userFields = {}
@@ -51,6 +51,7 @@ def create(params):
             username=userFields["username"],
             email=userFields["email"],
             account_type=userFields["account_type"],
+            password_hash = userFields["password_hash"],
             vendor_location=userFields["vendor_location"],
             )
         models.db.session.add(user)
@@ -64,7 +65,7 @@ def create(params):
 def show(params):
     #Initialize
     response = {}
-    requiredFields = ["id"]
+    requiredFields = ["user_id"]
     optionalFields = []
     allFields = requiredFields + optionalFields
     userFields = {}
@@ -87,7 +88,7 @@ def show(params):
         status = 400
     else:
         #Query for User
-        user = models.User.query.filter_by(id=userFields["id"]).first()
+        user = models.User.query.filter_by(user_id=userFields["user_id"]).first()
         
         if user is not None:
             #Query Successful
@@ -99,7 +100,7 @@ def show(params):
             status = 200
         else:
             #Query Unsuccessful
-            response["message"] = "Product cannot be found"
+            response["message"] = "User cannot be found"
             status = 200
 
     return jsonify(response), status
@@ -107,7 +108,7 @@ def show(params):
 def update(params):
     #Initialize
     response = {}
-    requiredFields = ["username", "email", "account_type"]
+    requiredFields = ["user_id","username", "email", "account_type"]
     optionalFields = ["vendor_location"]
     allFields = requiredFields + optionalFields
     userFields = {}
@@ -130,7 +131,7 @@ def update(params):
         status = 400
     else:
         #Query for User
-        user = models.User.query.filter_by(id=userFields["id"]).first()     
+        user = models.User.query.filter_by(user_id=userFields["user_id"]).first()     
 
         if user is not None:
             ''' Wont need to update any numerical values
@@ -144,7 +145,7 @@ def update(params):
                 return jsonify(response), status
 '''
             #Update User
-            user.name = userFields["username"]
+            user.username = userFields["username"]
             user.email = userFields["email"]
             user.account_type = userFields["account_type"]
             user.vendor_location = userFields["vendor_location"]
@@ -163,7 +164,7 @@ def update(params):
 def delete(params):
     #Initialize
     response = {}
-    requiredFields = ["id"]
+    requiredFields = ["user_id"]
     optionalFields = []
     allFields = requiredFields + optionalFields
     userFields = {}
@@ -186,7 +187,7 @@ def delete(params):
         status = 400
     else:
         #Query for User
-        user = models.User.query.filter_by(id=userFields["id"]).first()
+        user = models.User.query.filter_by(user_id=userFields["user_id"]).first()
         
         if user is not None:
             #Query Successful
@@ -203,7 +204,8 @@ def delete(params):
 
 
 
-
+'''
 @login.user_loader
 def load_user(id):
     return models.User.query.get(int(id))
+    '''

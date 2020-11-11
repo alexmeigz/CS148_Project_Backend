@@ -63,12 +63,12 @@ def logout():
 import os, json
 from flask import Flask, request, jsonify, make_response
 from controllers import product_controller
-from controllers import product_controller
+from controllers import user_controller
 from models import models
 from flask_login import current_user, login_user, logout_user
 from flask_login import LoginManager
 from werkzeug.urls import url_parse
-from forms import RegistrationForm
+from forms import RegistrationForm, LoginForm
 
 #use this if linking to a reaact app on the same server
 #app = Flask(__name__, static_folder='./build', static_url_path='/')
@@ -208,7 +208,7 @@ def deleteProduct():
 
 ## Start of User routes
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/api/login/', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
@@ -225,24 +225,44 @@ def login():
         return redirect(next_page) #FLAG: if login success, redirect to the original page
     return render_template('login.html', title='Sign In', form=form)
 
-@app.route('/logout')
+@app.route('/api/logout/')
 def logout():
     logout_user()
     return redirect(url_for('index')) #FLAG: redirect to main index page
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/api/user/', methods=['POST'])
 def register(): ##FLAG: WATCH OUT, NEED TO CHANGE THIS FUNC SOON TO MATCH THE REST OF THE APP, esp db commands here!!
+    '''
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     form = RegistrationForm()
     if form.validate_on_submit():
+    
         user = User(username=form.username.data, email=form.email.data)
         user.set_password(form.password.data)
         db.session.add(user) #FLAG
         db.session.commit()
         flash('Congratulations, you are now a registered user!')
-        return redirect(url_for('login'))
-    return render_template('register.html', title='Register', form=form)
+        '''
+    return user_controller.create(request.args)
+        #return redirect(url_for('login'))
+    #return render_template('register.html', title='Register', form=form)
+
+@app.route('/api/user/', methods=['GET'])
+def showUser():
+
+    return user_controller.show(request.args)
+
+@app.route('/api/user/', methods=['PATCH'])
+def updateUser():
+
+    return user_controller.update(request.args)
+
+@app.route('/api/user/', methods=['DELETE'])
+def deleteUser():
+
+    return user_controller.delete(request.args)
+
 
 ### End of User routes ###
 

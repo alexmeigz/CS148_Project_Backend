@@ -44,10 +44,11 @@ class Product(db.Model):
 class User(UserMixin, db.Model):
     """Model for the users"""
     
-    __tablename__ = 'user'
+    __tablename__ = 'users'
 
     user_id = db.Column(db.Integer, primary_key = True)
     username = db.Column(db.Text)
+    password_hash = db.Column(db.String(128))
     email = db.Column(db.Text)
     account_type = db.Column(db.Text)
     vendor_location = db.Column(db.Text, nullable = True)
