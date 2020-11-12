@@ -62,13 +62,13 @@ class User(db.Model):
     __tablename__ = 'users'
 
     user_id = db.Column(db.Integer, primary_key = True)
-    username = db.Column(db.Text)
+    username = db.Column(db.Text, unique = True)
     password_hash = db.Column(db.String(128))
     email = db.Column(db.Text)
     account_type = db.Column(db.Text)
     vendor_location = db.Column(db.Text, nullable = True)
     #vendor_product_list = db.Column(ARRAY(db.Text)) #https://groups.google.com/g/sqlalchemy/c/5aTmT4rUJo4?pli=1
-    #credits = db.Column(db.Integer)
+    credits = db.Column(db.Integer)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
