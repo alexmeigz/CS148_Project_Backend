@@ -117,19 +117,6 @@ def after_request_func(response):
 
 @app.route('/api/product/', methods=['POST'])
 def createProduct():
-    '''
-    POST PARAMS:
-    product_name: str (required)
-    subscription: bool (required)
-    price: float (required)
-    location: str (optional)
-    frequency: int (optional)
-    
-    RESPONSE: (if successful)
-    {
-        "message": "Product created successfully!"
-    }
-    '''
     if(request.args.get("test", None)):
         return product_controller.add_test_data()
     else:
@@ -137,22 +124,6 @@ def createProduct():
 
 @app.route('/api/product/', methods=['GET'])
 def showProduct():
-    '''
-    GET PARAMS:
-    id = product_id (required)
-    
-    RESPONSE: (if successful) 
-    {
-        "frequency": str(datetime.timedelta),
-        "list_date": datetime,
-        "location": str,
-        "nutrition_id": int,
-        "price": str (includes currency symbol),
-        "product_id": int,
-        "product_name": str,
-        "subscription": bool
-    }   
-    '''
     if(request.args.get("display_all", None)):
         return product_controller.display_all(request.args)
     else:
@@ -160,33 +131,10 @@ def showProduct():
 
 @app.route('/api/product/', methods=['PATCH'])
 def updateProduct():
-    '''
-    PATCH PARAMS:
-    id = product_id (required)
-    product_name: str (required)
-    subscription: bool (required)
-    price: float (required)
-    location: str (optional)
-    frequency: int (optional)
-    
-    RESPONSE: (if successful) 
-    {
-        "message": "Product sucessfully updated"
-    }   
-    '''
     return product_controller.update(request.args)
 
 @app.route('/api/product/', methods=['DELETE'])
 def deleteProduct():
-    '''
-    DELETE PARAMS:
-    id = product_id (required)
-    
-    RESPONSE: (if successful) 
-    {
-        "message": "Product sucessfully removed"
-    }   
-    '''
     return product_controller.delete(request.args)
 
 @app.route('/api/application/', methods=['POST'])
@@ -271,36 +219,22 @@ def logout():
     return redirect(url_for('index')) #FLAG: redirect to main index page
 
 @app.route('/api/user/', methods=['POST'])
-def register(): ##FLAG: WATCH OUT, NEED TO CHANGE THIS FUNC SOON TO MATCH THE REST OF THE APP, esp db commands here!!
-    '''
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-    form = RegistrationForm()
-    if form.validate_on_submit():
-    
-        user = User(username=form.username.data, email=form.email.data)
-        user.set_password(form.password.data)
-        db.session.add(user) #FLAG
-        db.session.commit()
-        flash('Congratulations, you are now a registered user!')
-        '''
+def createUser(): 
     return user_controller.create(request.args)
-        #return redirect(url_for('login'))
-    #return render_template('register.html', title='Register', form=form)
 
 @app.route('/api/user/', methods=['GET'])
 def showUser():
-
-    return user_controller.show(request.args)
+    if(request.args.get("login", None)):
+        return user_controller.login(request.args)
+    else:
+        return user_controller.show(request.args)
 
 @app.route('/api/user/', methods=['PATCH'])
 def updateUser():
-
     return user_controller.update(request.args)
 
 @app.route('/api/user/', methods=['DELETE'])
 def deleteUser():
-
     return user_controller.delete(request.args)
 
 
