@@ -65,8 +65,8 @@ def create(params):
 def show(params):
     #Initialize
     response = {}
-    requiredFields = ["user_id"]
-    optionalFields = []
+    requiredFields = ["username"]
+    optionalFields = ["password_hash"]
     allFields = requiredFields + optionalFields
     userFields = {}
 
@@ -88,7 +88,7 @@ def show(params):
         status = 400
     else:
         #Query for User
-        user = models.User.query.filter_by(user_id=userFields["user_id"]).first()
+        user = models.User.query.filter_by(username=userFields["username"]).first()
         
         if user is not None:
             #Query Successful
@@ -97,6 +97,7 @@ def show(params):
             response["email"] = user.email
             response["account_type"] = user.account_type
             response["vendor_location"] = user.vendor_location
+            response["message"] = "User logged in successfully!"
             status = 200
         else:
             #Query Unsuccessful
