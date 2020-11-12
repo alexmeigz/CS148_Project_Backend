@@ -4,7 +4,6 @@ from flask import Flask, url_for, redirect, session
 
 from authlib.integrations.flask_client import OAuth
 
-
 app = Flask(__name__)
 app.secret_key = 'random secret' #need to randomly generate this
 
@@ -86,8 +85,8 @@ POSTGRES = {
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://rfshnkukompizc:d1ceeaebb80d23172c143eecc4e446c9cacba1877862b7be3acf1714c8aea51d@ec2-3-210-178-167.compute-1.amazonaws.com:5432/d5k9aac8pmgho9'
 
 #For Testing:
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
-    %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
+#    %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
 
 login = LoginManager(app) # for logging in
 login.login_view = 'login'
