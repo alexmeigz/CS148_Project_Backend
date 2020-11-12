@@ -80,12 +80,14 @@ POSTGRES = {
     'host': 'localhost',
     'port': '5432',
 }
-#For Testing:
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
-#    %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
+
 
 #For Production:
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://rfshnkukompizc:d1ceeaebb80d23172c143eecc4e446c9cacba1877862b7be3acf1714c8aea51d@ec2-3-210-178-167.compute-1.amazonaws.com:5432/d5k9aac8pmgho9'
+
+#For Testing:
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
+    %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
 
 login = LoginManager(app) # for logging in
 login.login_view = 'login'
@@ -226,6 +228,8 @@ def createUser():
 def showUser():
     if(request.args.get("login", None)):
         return user_controller.login(request.args)
+    elif(request.args.get("display_all", None)):
+        return user_controller.display_all(request.args)
     else:
         return user_controller.show(request.args)
 

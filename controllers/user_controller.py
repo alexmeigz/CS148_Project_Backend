@@ -151,6 +151,23 @@ def show(params):
 
     return jsonify(response), status
 
+def display_all(params):
+    users = models.User.query.all()
+    
+    response = {}
+    for user in users:
+        response[user.user_id] = {
+            "user_id" : user.user_id,
+            "username" : user.username,
+            "email" : user.email,
+            "account_type" : user.account_type,
+            "vendor_location" : user.vendor_location,
+            "credits" : user.credits
+        }
+    status = 200
+
+    return jsonify(response), status
+
 def update(params):
     #Initialize
     response = {}
