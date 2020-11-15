@@ -40,6 +40,7 @@ class Product(db.Model):
     list_date = db.Column(db.Date)
     location = db.Column(db.Text)
     nutrition_id = db.Column(db.Integer)
+    image_url = db.Column(db.Text)
 
 class Post(db.Model):
     """Model for the stations table"""

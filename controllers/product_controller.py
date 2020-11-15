@@ -22,7 +22,7 @@ def add_test_data():
 def create(params): 
     #Initialize
     response = {}
-    requiredFields = ["vendor_id", "product_name", "subscription", "price", "caption"]
+    requiredFields = ["vendor_id", "product_name", "subscription", "price", "caption", "image_url"]
     optionalFields = ["location", "frequency"]
     allFields = requiredFields + optionalFields
     productFields = {}
@@ -67,7 +67,8 @@ def create(params):
             location=productFields["location"],
             frequency=datetime.timedelta(days=productFields["frequency"]),
             list_date=datetime.date.today(),
-            caption=productFields["caption"]
+            caption=productFields["caption"],
+            image_url=productFields["image_url"]
             )
         models.db.session.add(product)
         models.db.session.commit()
@@ -114,6 +115,7 @@ def show(params):
             response["price"] = product.price
             response["list_date"] = str(product.list_date)
             response["location"] = product.location
+            response["image_url"] = product.image_url
             response["nutrition_id"] = product.nutrition_id
             status = 200
         else:
@@ -140,6 +142,7 @@ def display_all(params):
             "nutrition_id": product.nutrition_id,
             "price": str(product.price),
             "product_id": product.id,
+            "image_url": product.image_url,
             "product_name": product.name,
             "subscription": product.subscription
         }
@@ -150,7 +153,7 @@ def display_all(params):
 def update(params):
     #Initialize
     response = {}
-    requiredFields = ["id", "product_name", "subscription", "price", "caption"]
+    requiredFields = ["id", "product_name", "subscription", "price", "caption", "image_url"]
     optionalFields = ["location", "frequency"]
     allFields = requiredFields + optionalFields
     productFields = {}
@@ -192,6 +195,7 @@ def update(params):
             product.frequency = datetime.timedelta(days=productFields["frequency"])
             product.price = productFields["price"]
             product.location = productFields["location"]
+            product.image_url = productFields["image_url"]
             models.db.session.commit()
             
             #Query Successful
