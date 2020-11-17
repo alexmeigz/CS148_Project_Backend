@@ -89,3 +89,14 @@ class Application(db.Model):
     applsDate = db.Column(db.Date)
     busLocation = db.Column(db.Text)
     reason = db.Column(db.Text)
+
+class Report(db.Model):
+    """Model for the stations table"""
+    
+    __tablename__ = 'report'
+
+    report_id = db.Column(db.Integer, primary_key = True)
+    userReporter_id = db.Column(db.Integer)
+    reportedUser_id = db.Column(db.Integer)
+    reportText = db.Column(db.Text)
+    reportDate = db.Column(db.Date)
