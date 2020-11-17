@@ -34,6 +34,12 @@ def create(params):
         response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
         status = 400
     else:
+        if userFields["account_type"] not in ["Normal", "Home",  "Restaurant", "Admin"]:
+            print(userFields["account_type"])
+            response["message"] = "account_type must be one of the following: {}".format(["Normal", "Home",  "Restaurant", "Admin"])
+            status = 400
+            return jsonify(response), status
+
         #Add User to Database
         user = models.User(
             username=userFields["username"],
