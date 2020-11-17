@@ -39,6 +39,12 @@ def create(params):
             status = 400
             return jsonify(response), status
 
+        #Check for Valid Vendor Type
+        if applFields["vendorType"] not in ["Home", "Business"]:
+            response["message"] = "vendorType must be either Home or Business"
+            status = 400
+            return jsonify(response), status
+
         #Add Product to Database
         application = models.Application(
             user_id=applFields["user_id"],

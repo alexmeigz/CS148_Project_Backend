@@ -9,7 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 def create(params): 
     #Initialize
     response = {}
-    requiredFields = ["username", "email", "account_type", "password_hash"]
+    requiredFields = ["username", "email", "password_hash"]
     optionalFields = ["vendor_location"]
     allFields = requiredFields + optionalFields
     userFields = {}
@@ -34,17 +34,11 @@ def create(params):
         response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
         status = 400
     else:
-        if userFields["account_type"] not in ["Normal", "Home",  "Restaurant", "Admin"]:
-            print(userFields["account_type"])
-            response["message"] = "account_type must be one of the following: {}".format(["Normal", "Home",  "Restaurant", "Admin"])
-            status = 400
-            return jsonify(response), status
-
         #Add User to Database
         user = models.User(
             username=userFields["username"],
             email=userFields["email"],
-            account_type=userFields["account_type"],
+            account_type="Normal",
             password_hash = userFields["password_hash"],
             vendor_location=userFields["vendor_location"],
             credits=0
@@ -177,8 +171,8 @@ def display_all(params):
 def update(params):
     #Initialize
     response = {}
-    requiredFields = ["user_id", "username", "email", "account_type", "credits"]
-    optionalFields = ["vendor_location"]
+    requiredFields = ["user_id"]
+    optionalFields = ["vendor_location", "email", "account_type", "credits"]
     allFields = requiredFields + optionalFields
     userFields = {}
     print(params)
@@ -205,19 +199,23 @@ def update(params):
         user = models.User.query.filter_by(user_id=userFields["user_id"]).first()     
 
         if user is not None:
-            #Check for Numerical Credits
-            try:
-                userFields["credits"] = float(userFields["credits"])
-            except:
-                response["message"] = "Request has incorrect parameter type"
-                status = 400
-                return jsonify(response), status
-
             #Update User
-            user.credits = userFields["credits"]
-            user.email = userFields["email"]
-            user.account_type = userFields["account_type"]
-            user.vendor_location = userFields["vendor_location"]
+            if(userFields.get("credits", None)):
+                #Check for Numerical Credits
+                try:
+                    userFields["credits"] = float(userFields["credits"])
+                except:
+                    response["message"] = "Request has incorrect parameter type"
+                    status = 400
+                    return jsonify(response), status
+                user.credits = userFields["credits"]
+
+            if(userFields.get("email", None)):
+                user.email = userFields["email"]
+            if(userFields.get("account_type", None)):
+                user.account_type = userFields["account_type"]
+            if(userFields.get("vendor_location", None)):
+                user.vendor_location = userFields["vendor_location"]
             models.db.session.commit()
             
             #Query Successful
