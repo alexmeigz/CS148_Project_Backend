@@ -117,6 +117,7 @@ def show(params):
             response["location"] = product.location
             response["image_url"] = product.image_url
             response["nutrition_id"] = product.nutrition_id
+            response["vendor_id"]= product.vendor_id
             status = 200
         else:
             #Query Unsuccessful
@@ -126,11 +127,14 @@ def show(params):
     return jsonify(response), status
 
 def display_all(params):
-    q = models.Product.query.filter(models.Product.name.contains(params["product_name"]))
+    q = models.Product.query
+    if(params.get("product_name", None != None)):
+        q = q.filter(models.Product.name.contains(params["product_name"]))
     if(params.get("subscription", None) != None):
-        products = q.filter_by(subscription=params["subscription"]).all()
-    else:
-        products = q.all()
+        q = q.filter_by(subscription=params["subscription"])
+    if(params.get("vendor_id", None) != None):
+        q = q.filter_by(vendor_id=params["vendor_id"])
+    products = q.all()
     
     response = {}
     for product in products:
@@ -144,7 +148,8 @@ def display_all(params):
             "product_id": product.id,
             "image_url": product.image_url,
             "product_name": product.name,
-            "subscription": product.subscription
+            "subscription": product.subscription,
+            "vendor_id": product.vendor_id
         }
     status = 200
 
@@ -153,7 +158,7 @@ def display_all(params):
 def update(params):
     #Initialize
     response = {}
-    requiredFields = ["id", "product_name", "subscription", "price", "caption", "image_url"]
+    requiredFields = ["id", "vendor_id", "product_name", "subscription", "price", "caption", "image_url"]
     optionalFields = ["location", "frequency"]
     allFields = requiredFields + optionalFields
     productFields = {}

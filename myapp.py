@@ -86,7 +86,7 @@ POSTGRES = {
 
 #For Testing:
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
-    %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
+   %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
 
 login = LoginManager(app) # for logging in
 login.login_view = 'login'
