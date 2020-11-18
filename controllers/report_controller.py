@@ -198,7 +198,7 @@ def delete(params):
         
         if report is not None:
             #Query Successful
-            models.db.session.delete(application)
+            models.db.session.delete(report)
             models.db.session.commit()
             response["message"] = "Report successfully removed"
             status = 200
