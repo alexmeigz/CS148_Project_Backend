@@ -65,7 +65,7 @@ def show(params):
     requiredFields = ["report_id"]
     optionalFields = []
     allFields = requiredFields + optionalFields
-    applFields = {}
+    reportFields = {}
 
     #Check for Required Fields
     for field in requiredFields:
@@ -73,21 +73,21 @@ def show(params):
             response["message"] = "Missing Required Parameters: {}".format(requiredFields)
             status = 400
             return jsonify(response), status
-        applFields[field] = params.get(field, None)
+        reportFields[field] = params.get(field, None)
         
     #Check for Optional Fields
     for field in optionalFields:
-        applFields[field] = params.get(field, None)
+        reportFields[field] = params.get(field, None)
 
     #Check for Invalid Parameters
     if base_controller.verify(params, allFields): 
         response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
         status = 400
     else:
-        #Query for Application
-        report = models.Report.query.filter_by(report_id=applFields["report_id"]).first()
+        #Query for Report
+        report = models.Report.query.filter_by(report_id=reportFields["report_id"]).first()
         
-        if application is not None:
+        if report is not None:
             #Query Successful
             response["report_id"] = report.report_id
             response["userReporter_id"] = report.userReporter_id
@@ -104,20 +104,15 @@ def show(params):
     return jsonify(response), status
 
 
-##finished up to here
-
 def display_all(params):
-    applications = models.Application.query.all()
+    reports = models.Report.query.all()
     response = {}
-    for application in applications:
-        response[application.id] = {
-            "applsDate": str(application.applsDate),
-            "busLocation": application.busLocation,
-            "application_id": application.id,
-            "user_id": application.user_id,
-            "restName": application.restName,
-            "reason": application.reason,
-            "vendorType": application.vendorType
+    for report in reports:
+        response[report.report_id] = {
+            "reportDate": str(report.reportDate),
+            "userReporter_id": report.userReporter_id,
+            "reportedUser_id": report.reportedUser_id.
+            "reportText": report.reportText
         }
     status = 200
     return jsonify(response), status
@@ -125,10 +120,10 @@ def display_all(params):
 def update(params):
     #Initialize
     response = {}
-    requiredFields = ["id", "user_id", "restName", "vendorType", "reason"]
-    optionalFields = ["busLocation"]
+    requiredFields = ["report_id","reportText"]
+    optionalFields = []
     allFields = requiredFields + optionalFields
-    applFields = {}
+    reportFields = {}
 
     #Check for Required Fields
     for field in requiredFields:
@@ -136,11 +131,11 @@ def update(params):
             response["message"] = "Missing Required Parameters: {}".format(requiredFields)
             status = 400
             return jsonify(response), status
-        applFields[field] = params.get(field, None)
+        reportFields[field] = params.get(field, None)
 
     #Check for Optional Fields
         for field in optionalFields:
-            applFields[field] = params.get(field, None)
+            reportFields[field] = params.get(field, None)
 
     #Check for Invalid Parameters
     if base_controller.verify(params, allFields): 
@@ -148,8 +143,8 @@ def update(params):
         status = 400
     else:
         #Query for Product
-        application = models.Application.query.filter_by(id=applFields["id"]).first()     
-
+        report = models.Report.query.filter_by(report_id=reportFields["report_id"]).first()     
+'''
         if application is not None:
             #Check for Numerical Price and Frequency
             try:
@@ -157,22 +152,18 @@ def update(params):
             except:
                 response["message"] = "Request has incorrect parameter type"
                 status = 400
-                return jsonify(response), status
+                return jsonify(response), status'''
 
-            #Update application
-            application.restName = applFields["restName"]
-            application.user_id = applFields["user_id"]
-            application.vendorType = applFields["vendorType"]
-            application.reason = applFields["reason"]
-            application.busLocation = applFields["busLocation"]
+            #Update report
+            report.reportText = reportFields["reportText"]
             models.db.session.commit()
             
             #Query Successful
-            response["message"] = "Application successfully updated"
+            response["message"] = "Report successfully updated"
             status = 200
         else:
             #Query Unsuccessful
-            response["message"] = "Application cannot be found"
+            response["message"] = "Report cannot be found"
             status = 200
 
     return jsonify(response), status
@@ -180,10 +171,10 @@ def update(params):
 def delete(params):
     #Initialize
     response = {}
-    requiredFields = ["id"]
+    requiredFields = ["report_id"]
     optionalFields = []
     allFields = requiredFields + optionalFields
-    applFields = {}
+    reportFields = {}
 
     #Check for Required Fields
     for field in requiredFields:
@@ -191,29 +182,29 @@ def delete(params):
             response["message"] = "Missing Required Parameters: {}".format(requiredFields)
             status = 400
             return jsonify(response), status
-        applFields[field] = params.get(field, None)
+        reportFields[field] = params.get(field, None)
         
     #Check for Optional Fields
     for field in optionalFields:
-        applFields[field] = params.get(field, None)
+        reportFields[field] = params.get(field, None)
 
     #Check for Invalid Parameters
     if base_controller.verify(params, allFields): 
         response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
         status = 400
     else:
-        #Query for Product
-        application = models.Application.query.filter_by(id=applFields["id"]).first()
+        #Query for Report
+        report = models.Report.query.filter_by(report_id=reportFields["report_id"]).first()
         
-        if application is not None:
+        if report is not None:
             #Query Successful
             models.db.session.delete(application)
             models.db.session.commit()
-            response["message"] = "Application successfully removed"
+            response["message"] = "Report successfully removed"
             status = 200
         else:
             #Query Unsuccessful
-            response["message"] = "Application cannot be found"
+            response["message"] = "Report cannot be found"
             status = 200
 
     return jsonify(response), status
