@@ -143,6 +143,8 @@ def show(params):
             response["account_type"] = user.account_type
             response["vendor_location"] = user.vendor_location
             response["credits"] = user.credits
+            response["profile_image_url"] = user.profile_image_url
+            response["vendor_image_url"] = user.vendor_image_url
             status = 200
         else:
             #Query Unsuccessful
@@ -162,7 +164,9 @@ def display_all(params):
             "email" : user.email,
             "account_type" : user.account_type,
             "vendor_location" : user.vendor_location,
-            "credits" : user.credits
+            "credits" : user.credits,
+            "profile_image_url" : user.profile_image_url,
+            "vendor_image_url" : user.vendor_image_url
         }
     status = 200
 
@@ -172,7 +176,7 @@ def update(params):
     #Initialize
     response = {}
     requiredFields = ["user_id"]
-    optionalFields = ["vendor_location", "email", "account_type", "credits"]
+    optionalFields = ["vendor_location", "email", "account_type", "credits", "vendor_image_url", "profile_image_url"]
     allFields = requiredFields + optionalFields
     userFields = {}
     print(params)
@@ -216,6 +220,10 @@ def update(params):
                 user.account_type = userFields["account_type"]
             if(userFields.get("vendor_location", None)):
                 user.vendor_location = userFields["vendor_location"]
+            if(userFields.get("profile_image_url", None)):
+                user.profile_image_url = userFields["profile_image_url"]
+            if(userFields.get("vendor_image_url", None)):
+                user.vendor_image_url = userFields["vendor_image_url"]
             models.db.session.commit()
             
             #Query Successful
