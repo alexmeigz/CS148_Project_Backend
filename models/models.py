@@ -100,3 +100,14 @@ class Report(db.Model):
     reportedUser_id = db.Column(db.Integer)
     reportText = db.Column(db.Text)
     reportDate = db.Column(db.Date)
+
+class Nutrition(db.Model):
+    """Model for the stations table"""
+    
+    __tablename__ = 'nutrition'
+
+    nutrition_id = db.Column(db.Integer, primary_key = True)
+    recipe_id = db.Column(db.Integer)
+    recipe_name = db.Column(db.Text)
+    details = db.Column(db.Text)
+
