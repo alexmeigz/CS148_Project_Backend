@@ -6,10 +6,10 @@ from flask_login import current_user, login_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
-def create(params): 
+def create(params, body): 
     #Initialize
     response = {}
-    requiredFields = ["userReporter_id", "reportedUser_id", "reportText"]
+    requiredFields = ["userReporter_id", "reportedUser_id"]
     optionalFields = []
     allFields = requiredFields + optionalFields
     userFields = {}
@@ -33,20 +33,16 @@ def create(params):
     if base_controller.verify(params, allFields): 
         response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
         status = 400
-    '''else:
-        if userFields["account_type"] not in ["Normal", "Home",  "Restaurant", "Admin"]:
-            print(userFields["account_type"])
-            response["message"] = "account_type must be one of the following: {}".format(["Normal", "Home",  "Restaurant", "Admin"])
-            status = 400
-            return jsonify(response), status'''
 
-        #Add User to Database
+    
+    else:
+        #Add Report to Database
         report = models.Report(
             userReporter_id=userFields["userReporter_id"],
             reportedUser_id=userFields["reportedUser_id"],
-            reportText=userFields["reportText"],
+            reportText=body.decode(),
             reportDate=datetime.date.today()
-            )
+        )
         try:
             models.db.session.add(report)
             models.db.session.commit()
@@ -111,16 +107,16 @@ def display_all(params):
         response[report.report_id] = {
             "reportDate": str(report.reportDate),
             "userReporter_id": report.userReporter_id,
-            "reportedUser_id": report.reportedUser_id.
+            "reportedUser_id": report.reportedUser_id,
             "reportText": report.reportText
         }
     status = 200
     return jsonify(response), status
 
-def update(params):
+def update(params, body):
     #Initialize
     response = {}
-    requiredFields = ["report_id","reportText"]
+    requiredFields = ["report_id"]
     optionalFields = []
     allFields = requiredFields + optionalFields
     reportFields = {}
@@ -142,11 +138,11 @@ def update(params):
         response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
         status = 400
     else:
-        #Query for Product
+        #Query for Report
         report = models.Report.query.filter_by(report_id=reportFields["report_id"]).first()     
-'''
-        if application is not None:
-            #Check for Numerical Price and Frequency
+
+        if report is not None:
+            ''''#Check for Numerical Price and Frequency
             try:
                 applFields["user_id"] = int(applFields["user_id"])
             except:
@@ -155,7 +151,7 @@ def update(params):
                 return jsonify(response), status'''
 
             #Update report
-            report.reportText = reportFields["reportText"]
+            report.reportText = body.decode()
             models.db.session.commit()
             
             #Query Successful

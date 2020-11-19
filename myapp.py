@@ -61,7 +61,7 @@ def logout():
 
 import os, json
 from flask import Flask, request, jsonify, make_response
-from controllers import product_controller, post_controller, appl_controller, user_controller
+from controllers import product_controller, post_controller, appl_controller, user_controller, report_controller
 from models import models
 from flask_login import current_user, login_user, logout_user
 from flask_login import LoginManager
@@ -193,7 +193,7 @@ def updatePost():
 @app.route('/api/post/', methods=['DELETE'])
 def deleteApp():
     return post_controller.delete(request.args)
-###End of Product routes ###
+###End of Post routes ###
 
 ## Start of User routes
 
@@ -242,6 +242,30 @@ def deleteUser():
 
 
 ### End of User routes ###
+
+### Start of Report routes ###
+@app.route('/api/report/', methods=['POST'])
+def createReport(): 
+    return report_controller.create(request.args, request.data)
+
+@app.route('/api/report/', methods=['GET'])
+def showReport():
+    if(request.args.get("show", None)):
+        return report_controller.show(request.args)
+    elif(request.args.get("display_all", None)):
+        return report_controller.display_all(request.args)
+    else:
+        return report_controller.show(request.args)
+
+@app.route('/api/report/', methods=['PATCH'])
+def updateReport():
+    return report_controller.update(request.args, request.data)
+
+@app.route('/api/report/', methods=['DELETE'])
+def deleteReport():
+    return report_controller.delete(request.args)
+
+### End of Report routes ###
 
 
 # Set the base route to be the react index.html
