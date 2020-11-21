@@ -80,7 +80,7 @@ def create(params):
 def show(params):
     #Initialize
     response = {}
-    requiredFields = ["id"]
+    requiredFields = ["product_id"]
     optionalFields = []
     allFields = requiredFields + optionalFields
     productFields = {}
@@ -103,11 +103,11 @@ def show(params):
         status = 400
     else:
         #Query for Product
-        product = models.Product.query.filter_by(id=productFields["id"]).first()
+        product = models.Product.query.filter_by(id=productFields["product_id"]).first()
         
         if product is not None:
             #Query Successful
-            response["id"] = product.id
+            response["product_id"] = product.id
             response["product_name"] = product.name
             response["caption"] = product.caption
             response["subscription"] = product.subscription
@@ -158,7 +158,7 @@ def display_all(params):
 def update(params):
     #Initialize
     response = {}
-    requiredFields = ["id", "vendor_id", "product_name", "subscription", "price", "caption", "image_url"]
+    requiredFields = ["product_id", "vendor_id", "product_name", "subscription", "price", "caption", "image_url"]
     optionalFields = ["location", "frequency"]
     allFields = requiredFields + optionalFields
     productFields = {}
@@ -181,7 +181,7 @@ def update(params):
         status = 400
     else:
         #Query for Product
-        product = models.Product.query.filter_by(id=productFields["id"]).first()     
+        product = models.Product.query.filter_by(id=productFields["product_id"]).first()     
 
         if product is not None:
             #Check for Numerical Price and Frequency
@@ -216,7 +216,7 @@ def update(params):
 def delete(params):
     #Initialize
     response = {}
-    requiredFields = ["id"]
+    requiredFields = ["product_id"]
     optionalFields = []
     allFields = requiredFields + optionalFields
     productFields = {}
@@ -239,7 +239,7 @@ def delete(params):
         status = 400
     else:
         #Query for Product
-        product = models.Product.query.filter_by(id=productFields["id"]).first()
+        product = models.Product.query.filter_by(id=productFields["product_id"]).first()
         
         if product is not None:
             #Query Successful
