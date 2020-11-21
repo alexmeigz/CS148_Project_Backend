@@ -144,7 +144,7 @@ def display_all(params):
             "list_date": str(product.list_date),
             "location": product.location,
             "nutrition_id": product.nutrition_id,
-            "price": str(product.price),
+            "price": product.price,
             "product_id": product.id,
             "image_url": product.image_url,
             "product_name": product.name,
