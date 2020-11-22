@@ -61,7 +61,7 @@ def logout():
 
 import os, json
 from flask import Flask, request, jsonify, make_response
-from controllers import product_controller, post_controller, appl_controller, user_controller, report_controller
+from controllers import product_controller, post_controller, appl_controller, user_controller, report_controller, nutrition_controller
 from models import models
 from flask_login import current_user, login_user, logout_user
 from flask_login import LoginManager
