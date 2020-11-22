@@ -9,10 +9,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 def create(params, body): 
     #Initialize
     response = {}
-    requiredFields = ["userReporter_id", "reportedUser_id"]
+    requiredFields = ["recipe_id"]
     optionalFields = []
     allFields = requiredFields + optionalFields
-    reportFields = {}
+    nutritionFields = {}
 
     #Check for Required Fields
     for field in requiredFields:
@@ -20,14 +20,14 @@ def create(params, body):
             response["message"] = "Missing Required Parameters: {}".format(requiredFields)
             status = 400
             return jsonify(response), status
-        reportFields[field] = params.get(field, None)
+        nutritionFields[field] = params.get(field, None)
         
     #Check for Optional Fields
     for field in optionalFields:
         if field == "frequency":
-            reportFields[field] = params.get(field, 0)
+            nutritionFields[field] = params.get(field, 0)
         else:
-            reportFields[field] = params.get(field, None)
+            nutritionFields[field] = params.get(field, None)
 
     #Check for Invalid Parameters
     if base_controller.verify(params, allFields): 
@@ -36,20 +36,19 @@ def create(params, body):
 
     
     else:
-        #Add Report to Database
-        report = models.Report(
-            userReporter_id=reportFields["userReporter_id"],
-            reportedUser_id=reportFields["reportedUser_id"],
-            reportText=body.decode(),
-            reportDate=datetime.date.today()
+        #Add Nutrition to Database
+        nutrition = models.Nutrition(
+            recipe_id=nutritionFields["recipe_id"],
+            details=body.decode()
         )
         try:
-            models.db.session.add(report)
+            models.db.session.add(nutrition)
             models.db.session.commit()
-            response["message"] = "Report submitted successfully!"
+            response["message"] = "Nutrition submitted successfully!"
+            response["nutrition_id"] = nutrition.nutrition_id
             status = 200
         except:
-            response["message"] = "Report couldn't be submitted."
+            response["message"] = "Nutrition couldn't be submitted."
             status = 400
   
     return jsonify(response), status
@@ -58,10 +57,10 @@ def create(params, body):
 def show(params):
     #Initialize
     response = {}
-    requiredFields = ["report_id"]
+    requiredFields = ["nutrition_id"]
     optionalFields = []
     allFields = requiredFields + optionalFields
-    reportFields = {}
+    nutritionFields = {}
 
     #Check for Required Fields
     for field in requiredFields:
@@ -69,46 +68,42 @@ def show(params):
             response["message"] = "Missing Required Parameters: {}".format(requiredFields)
             status = 400
             return jsonify(response), status
-        reportFields[field] = params.get(field, None)
+        nutritionFields[field] = params.get(field, None)
         
     #Check for Optional Fields
     for field in optionalFields:
-        reportFields[field] = params.get(field, None)
+        nutritionFields[field] = params.get(field, None)
 
     #Check for Invalid Parameters
     if base_controller.verify(params, allFields): 
         response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
         status = 400
     else:
-        #Query for Report
-        report = models.Report.query.filter_by(report_id=reportFields["report_id"]).first()
+        #Query for Nutrition
+        nutrition = models.Nutrition.query.filter_by(nutrition_id=nutritionFields["nutrition_id"]).first()
         
-        if report is not None:
+        if nutrition is not None:
             #Query Successful
-            response["report_id"] = report.report_id
-            response["userReporter_id"] = report.userReporter_id
-            response["reportedUser_id"] = report.reportedUser_id
-            response["reportText"] = report.reportText
-            response["reportDate"] = str(report.reportDate)
-            response["message"] = "Report found"
+            response["nutrition_id"] = nutrition.nutrition_id
+            response["recipe_id"] = nutrition.recipe_id
+            response["details"] = nutrition.details
+            response["message"] = "Nutrition found"
             status = 200
         else:
             #Query Unsuccessful
-            response["message"] = "Report cannot be found"
+            response["message"] = "Nutrition cannot be found"
             status = 200
 
     return jsonify(response), status
 
 
 def display_all(params):
-    reports = models.Report.query.all()
+    nutritions = models.Nutrition.query.all()
     response = {}
-    for report in reports:
-        response[report.report_id] = {
-            "reportDate": str(report.reportDate),
-            "userReporter_id": report.userReporter_id,
-            "reportedUser_id": report.reportedUser_id,
-            "reportText": report.reportText
+    for nutrition in nutritions:
+        response[nutrition.nutrition_id] = {
+            "recipe_id": nutrition.recipe_id,
+            "details": nutrition.details
         }
     status = 200
     return jsonify(response), status
@@ -116,10 +111,10 @@ def display_all(params):
 def update(params, body):
     #Initialize
     response = {}
-    requiredFields = ["report_id"]
+    requiredFields = ["nutrition_id"]
     optionalFields = []
     allFields = requiredFields + optionalFields
-    reportFields = {}
+    nutritionFields = {}
 
     #Check for Required Fields
     for field in requiredFields:
@@ -127,21 +122,21 @@ def update(params, body):
             response["message"] = "Missing Required Parameters: {}".format(requiredFields)
             status = 400
             return jsonify(response), status
-        reportFields[field] = params.get(field, None)
+        nutritionFields[field] = params.get(field, None)
 
     #Check for Optional Fields
         for field in optionalFields:
-            reportFields[field] = params.get(field, None)
+            nutritionFields[field] = params.get(field, None)
 
     #Check for Invalid Parameters
     if base_controller.verify(params, allFields): 
         response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
         status = 400
     else:
-        #Query for Report
-        report = models.Report.query.filter_by(report_id=reportFields["report_id"]).first()     
+        #Query for Nutrition
+        nutrition = models.Nutrition.query.filter_by(nutrition_id=nutritionFields["nutrition_id"]).first()     
 
-        if report is not None:
+        if nutrition is not None:
             ''''#Check for Numerical Price and Frequency
             try:
                 applFields["user_id"] = int(applFields["user_id"])
@@ -150,16 +145,16 @@ def update(params, body):
                 status = 400
                 return jsonify(response), status'''
 
-            #Update report
-            report.reportText = body.decode()
+            #Update nutrition
+            nutrition.details = body.decode()
             models.db.session.commit()
             
             #Query Successful
-            response["message"] = "Report successfully updated"
+            response["message"] = "Nutrition successfully updated"
             status = 200
         else:
             #Query Unsuccessful
-            response["message"] = "Report cannot be found"
+            response["message"] = "Nutrition cannot be found"
             status = 200
 
     return jsonify(response), status
@@ -167,10 +162,10 @@ def update(params, body):
 def delete(params):
     #Initialize
     response = {}
-    requiredFields = ["report_id"]
+    requiredFields = ["nutrition_id"]
     optionalFields = []
     allFields = requiredFields + optionalFields
-    reportFields = {}
+    nutritionFields = {}
 
     #Check for Required Fields
     for field in requiredFields:
@@ -178,29 +173,29 @@ def delete(params):
             response["message"] = "Missing Required Parameters: {}".format(requiredFields)
             status = 400
             return jsonify(response), status
-        reportFields[field] = params.get(field, None)
+        nutritionFields[field] = params.get(field, None)
         
     #Check for Optional Fields
     for field in optionalFields:
-        reportFields[field] = params.get(field, None)
+        nutritionFields[field] = params.get(field, None)
 
     #Check for Invalid Parameters
     if base_controller.verify(params, allFields): 
         response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
         status = 400
     else:
-        #Query for Report
-        report = models.Report.query.filter_by(report_id=reportFields["report_id"]).first()
+        #Query for Nutrition
+        nutrition = models.Nutrition.query.filter_by(nutrition_id=nutritionFields["nutrition_id"]).first()
         
-        if report is not None:
+        if nutrition is not None:
             #Query Successful
-            models.db.session.delete(report)
+            models.db.session.delete(nutrition)
             models.db.session.commit()
-            response["message"] = "Report successfully removed"
+            response["message"] = "Nutrition successfully removed"
             status = 200
         else:
             #Query Unsuccessful
-            response["message"] = "Report cannot be found"
+            response["message"] = "Nutrition cannot be found"
             status = 200
 
     return jsonify(response), status
