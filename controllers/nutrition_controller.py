@@ -100,7 +100,7 @@ def show(params):
 def display_all(params):
     nutritions = models.Nutrition.query.all()
     response = {}
-    for nutrition in nutrition:
+    for nutrition in nutritions:
         response[nutrition.nutrition_id] = {
             "recipe_id": nutrition.recipe_id,
             "details": nutrition.details
@@ -195,7 +195,7 @@ def delete(params):
             status = 200
         else:
             #Query Unsuccessful
-            response["message"] = "Report cannot be found"
+            response["message"] = "Nutrition cannot be found"
             status = 200
 
     return jsonify(response), status
