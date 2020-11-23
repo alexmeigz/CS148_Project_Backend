@@ -91,6 +91,5 @@ class Nutrition(db.Model):
 
     nutrition_id = db.Column(db.Integer, primary_key = True)
     recipe_id = db.Column(db.Integer)
-    recipe_name = db.Column(db.Text)
     details = db.Column(db.Text)
 

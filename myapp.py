@@ -61,7 +61,7 @@ def logout():
 
 import os, json
 from flask import Flask, request, jsonify, make_response
-from controllers import product_controller, post_controller, appl_controller, user_controller, report_controller
+from controllers import product_controller, post_controller, appl_controller, user_controller, report_controller, nutrition_controller
 from models import models
 from flask_login import current_user, login_user, logout_user
 from flask_login import LoginManager
@@ -267,6 +267,29 @@ def deleteReport():
 
 ### End of Report routes ###
 
+### Start of Nutrition routes ###
+@app.route('/api/nutrition/', methods=['POST'])
+def createNutrition(): 
+    return nutrition_controller.create(request.args, request.data)
+
+@app.route('/api/nutrition/', methods=['GET'])
+def showNutrition():
+    if(request.args.get("show", None)):
+        return nutrition_controller.show(request.args)
+    elif(request.args.get("display_all", None)):
+        return nutrition_controller.display_all(request.args)
+    else:
+        return nutrition_controller.show(request.args)
+
+@app.route('/api/nutrition/', methods=['PATCH'])
+def updateNutrition():
+    return nutrition_controller.update(request.args, request.data)
+
+@app.route('/api/nutrition/', methods=['DELETE'])
+def deleteNutrition():
+    return nutrition_controller.delete(request.args)
+
+### End of Nutrition routes ###
 
 # Set the base route to be the react index.html
 @app.route('/')
