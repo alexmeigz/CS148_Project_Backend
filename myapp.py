@@ -66,7 +66,6 @@ from models import models
 from flask_login import current_user, login_user, logout_user
 from flask_login import LoginManager
 from werkzeug.urls import url_parse
-from forms import RegistrationForm, LoginForm
 
 #use this if linking to a reaact app on the same server
 #app = Flask(__name__, static_folder='./build', static_url_path='/')
