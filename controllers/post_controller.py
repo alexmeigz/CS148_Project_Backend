@@ -7,7 +7,9 @@ import time, datetime
 def blog_create(params, body): 
     #Initialize
     response = {}
-    requiredFields = ["type", "title"]
+    requiredFields = ["type", "title", "user_id"]
+    optionalFields = ["image_url"]
+    allFields = requiredFields + optionalFields
     postFields = {}
 
     #Check for Required Fields
@@ -22,9 +24,13 @@ def blog_create(params, body):
         status = 400
         return jsonify(response), status
 
+    #Check for Optional Fields
+    for field in optionalFields:
+        postFields[field] = params.get(field, None)
+
     #Check for Invalid Parameters
-    if base_controller.verify(params, requiredFields): 
-        response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, requiredFields))
+    if base_controller.verify(params, allFields): 
+        response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
         status = 400
     else:
         #Add Blog to Database
@@ -32,6 +38,8 @@ def blog_create(params, body):
             post_type="blog",
             title=postFields["title"],
             content=body.decode(),
+            user_id=postFields["user_id"],
+            image_url=postFields["image_url"],
             last_edit=datetime.datetime.now()
         )
         models.db.session.add(blog)
@@ -44,7 +52,9 @@ def blog_create(params, body):
 def review_create(params, body): 
     #Initialize
     response = {}
-    requiredFields = ["type", "title", "rating"]
+    requiredFields = ["type", "title", "rating", "user_id"]
+    optionalFields = ["image_url"]
+    allFields = requiredFields + optionalFields
     postFields = {}
 
     #Check for Required Fields
@@ -59,9 +69,13 @@ def review_create(params, body):
         status = 400
         return jsonify(response), status
 
+    #Check for Optional Fields
+    for field in optionalFields:
+        postFields[field] = params.get(field, None)
+
     #Check for Invalid Parameters
-    if base_controller.verify(params, requiredFields): 
-        response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, requiredFields))
+    if base_controller.verify(params, allFields): 
+        response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
         status = 400
     else:
         #Add Blog to Database
@@ -70,6 +84,8 @@ def review_create(params, body):
             title=postFields["title"],
             content=body.decode(),
             rating=postFields["rating"],
+            user_id=postFields["user_id"],
+            image_url=postFields["image_url"],
             last_edit=datetime.datetime.now()
         )
         models.db.session.add(review)
@@ -82,7 +98,7 @@ def review_create(params, body):
 def recipe_create(params, body): 
     #Initialize
     response = {}
-    requiredFields = ["type", "title", "caption"]
+    requiredFields = ["type", "title", "caption", "user_id", "image_url"]
     bodyFields = ["ingredients", "instructions"]
     postFields = {}
 
@@ -115,6 +131,8 @@ def recipe_create(params, body):
             caption=postFields["caption"],
             ingredients=postFields["ingredients"],
             instructions=postFields["instructions"], 
+            user_id=postFields["user_id"],
+            image_url=postFields["image_url"],
             last_edit=datetime.datetime.now()
         )
         models.db.session.add(recipe)
@@ -139,10 +157,6 @@ def show(params):
             status = 400
             return jsonify(response), status
         postFields[field] = params.get(field, None)
-        
-    #Check for Optional Fields
-    for field in optionalFields:
-        postFields[field] = params.get(field, None)
 
     #Check for Invalid Parameters
     if base_controller.verify(params, allFields): 
@@ -163,6 +177,8 @@ def show(params):
             response["ingredients"] = post.ingredients
             response["instructions"] = post.instructions
             response["last_edit"] = post.last_edit
+            response["user_id"] = post.user_id
+            response["image_url"] = post.image_url
             status = 200
         else:
             #Query Unsuccessful
@@ -185,7 +201,9 @@ def display_all(params):
             "caption" : post.caption,
             "ingredients" : post.ingredients,
             "instructions" : post.instructions,
-            "last_edit" : post.last_edit
+            "last_edit" : post.last_edit,
+            "user_id" : post.user_id,
+            "image_url" : post.image_url
         }
     status = 200
 
@@ -194,7 +212,9 @@ def display_all(params):
 def blog_update(params, body):
     #Initialize
     response = {}
-    requiredFields = ["post_id", "type", "title"]
+    requiredFields = ["post_id", "type", "title", "user_id"]
+    optionalFields = ["image_url"]
+    allFields = requiredFields + optionalFields
     postFields = {}
 
     #Check for Required Fields
@@ -209,9 +229,13 @@ def blog_update(params, body):
         status = 400
         return jsonify(response), status
 
+    #Check for Optional Fields
+    for field in optionalFields:
+        postFields[field] = params.get(field, None)
+
     #Check for Invalid Parameters
-    if base_controller.verify(params, requiredFields): 
-        response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, requiredFields))
+    if base_controller.verify(params, allFields): 
+        response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
         status = 400
     else:
         #Query for Product
@@ -223,6 +247,7 @@ def blog_update(params, body):
             post.title = postFields["title"]
             post.content = body.decode()
             post.last_edit = datetime.datetime.now()
+            post.image_url = postFields["image_url"]
             models.db.session.commit()
             
             #Query Successful
@@ -238,7 +263,9 @@ def blog_update(params, body):
 def review_update(params, body):
     #Initialize
     response = {}
-    requiredFields = ["post_id", "type", "title", "rating"]
+    requiredFields = ["post_id", "type", "title", "rating", "user_id"]
+    optionalFields = ["image_url"]
+    allFields = requiredFields + optionalFields
     postFields = {}
 
     #Check for Required Fields
@@ -253,9 +280,13 @@ def review_update(params, body):
         status = 400
         return jsonify(response), status
 
+    #Check for Optional Fields
+    for field in optionalFields:
+        postFields[field] = params.get(field, None)
+
     #Check for Invalid Parameters
-    if base_controller.verify(params, requiredFields): 
-        response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, requiredFields))
+    if base_controller.verify(params, allFields): 
+        response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
         status = 400
     else:
         #Query for Product
@@ -267,6 +298,7 @@ def review_update(params, body):
             post.title = postFields["title"]
             post.content = body.decode()
             post.rating = postFields["rating"]
+            post.image_url = postFields["image_url"]
             post.last_edit = datetime.datetime.now()
             models.db.session.commit()
             
@@ -283,7 +315,7 @@ def review_update(params, body):
 def recipe_update(params, body):
     #Initialize
     response = {}
-    requiredFields = ["post_id", "type", "title", "caption"]
+    requiredFields = ["post_id", "type", "title", "caption", "user_id", "image_url"]
     bodyFields = ["ingredients", "instructions"]
     postFields = {}
 
@@ -323,6 +355,7 @@ def recipe_update(params, body):
             post.caption = postFields["caption"]
             post.ingredients = postFields["ingredients"]
             post.instructions = postFields["instructions"]
+            post.image_url = postFields["image_url"]
             post.last_edit = datetime.datetime.now()
             models.db.session.commit()
             
@@ -339,7 +372,7 @@ def recipe_update(params, body):
 def delete(params):
     #Initialize
     response = {}
-    requiredFields = ["post_id"]
+    requiredFields = ["post_id", "user_id"]
     optionalFields = []
     allFields = requiredFields + optionalFields
     postFields = {}
