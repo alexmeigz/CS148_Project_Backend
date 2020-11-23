@@ -34,6 +34,8 @@ class Post(db.Model):
     caption = db.Column(db.Text)            #only for recipe
     ingredients = db.Column(db.Text)        #only for recipe
     instructions = db.Column(db.Text)       #only for recipe
+    user_id = db.Column(db.Integer)     
+    image_url = db.Column(db.Text)
     last_edit = db.Column(db.DateTime)
 
 class User(db.Model):
