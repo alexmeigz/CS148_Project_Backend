@@ -156,7 +156,12 @@ def show(params):
     return jsonify(response), status
 
 def display_all(params):
-    users = models.User.query.all()
+    if params.get("filter", None) == "vendor":
+        users = (models.User.query.filter_by(account_type="Business").all() + 
+                    models.User.query.filter_by(account_type="Home").all())
+
+    else:
+        users = models.User.query.all()
     
     response = {}
     for user in users:
