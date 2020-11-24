@@ -15,13 +15,6 @@ from werkzeug.urls import url_parse
 #app = Flask(__name__, static_folder='./build', static_url_path='/')
 app = Flask(__name__)
 DEBUG=True
-POSTGRES = {
-    'user': 'postgres',
-    'pw': 'password',
-    'db': 'cs148db',
-    'host': 'localhost',
-    'port': '5432',
-}
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 
