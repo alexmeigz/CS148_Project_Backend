@@ -86,7 +86,7 @@ def login(params):
             response["message"] = "Invalid username"
             status = 400
             return jsonify(response), status
-        elif(user.password_hash != userFields["password_hash"]):
+        elif(user.password_hash != userFields["password_hash"].strip()):
             response["message"] = "Invalid password"
             status = 400
             return jsonify(response), status
@@ -99,6 +99,8 @@ def login(params):
             response["account_type"] = user.account_type
             response["vendor_location"] = user.vendor_location
             response["credits"] = user.credits
+            response["profile_image_url"] = user.profile_image_url
+            response["vendor_image_url"] = user.vendor_image_url
             status = 200
         else:
             #Query Unsuccessful
@@ -154,7 +156,12 @@ def show(params):
     return jsonify(response), status
 
 def display_all(params):
-    users = models.User.query.all()
+    if params.get("filter", None) == "vendor":
+        users = (models.User.query.filter_by(account_type="Business").all() + 
+                    models.User.query.filter_by(account_type="Home").all())
+
+    else:
+        users = models.User.query.all()
     
     response = {}
     for user in users:

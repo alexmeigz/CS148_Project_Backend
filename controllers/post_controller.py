@@ -78,6 +78,20 @@ def review_create(params, body):
         response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
         status = 400
     else:
+        #Check for valid type
+        try:
+            postFields["rating"] = float(postFields["rating"])
+        except:
+            response["message"] = "Request has invalid parameter type"
+            status = 400
+            return jsonify(response), status
+
+        #Check for valid rating
+        if not (1 <= postFields["rating"] <= 5):
+            response["message"] = "Request has invalid rating (must be from 1 to 5"
+            status = 400
+            return jsonify(response), status
+
         #Add Blog to Database
         review = models.Post(
             post_type="review",
