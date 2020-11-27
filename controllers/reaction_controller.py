@@ -31,6 +31,11 @@ def create(params):
             status = 400
             return jsonify(response), status
 
+        if reactionFields["user_id"] == 0:
+            response["message"] = "Invalid user_id"
+            status = 400
+            return jsonify(response), status
+
         #Add Product to Database
         reaction = models.Reaction(
             user_id=reactionFields["user_id"],
