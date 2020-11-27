@@ -3,27 +3,6 @@ from flask_login import UserMixin #for user login
 from werkzeug.security import generate_password_hash, check_password_hash # for pwd hashing
 
 db = SQLAlchemy()
-#Base Code Acquired from https://blog.theodo.com/2017/03/developping-a-flask-web-app-with-a-postresql-database-making-all-the-possible-errors/
-class BaseModel(db.Model):
-    '''Base data model for all objects'''
-    __abstract__ = True
-
-    def __init__(self, *args):
-        super().__init__(*args)
-
-    def __repr__(self):
-        '''Define a base way to print models'''
-        return '%s(%s)' % (self.__class__.__name__, {
-            column: value
-            for column, value in self._to_dict().items()
-        })
-
-    def json(self):
-        '''Define a base way to jsonify models, dealing with datetime objects''' 
-        return {
-            column: value if not isinstance(value, datetime.date) else value.strftime('%Y-%m-%d')
-            for column, value in self._to_dict().items()
-        }
 
 class Product(db.Model):
     """Model for the stations table"""
@@ -55,6 +34,8 @@ class Post(db.Model):
     caption = db.Column(db.Text)            #only for recipe
     ingredients = db.Column(db.Text)        #only for recipe
     instructions = db.Column(db.Text)       #only for recipe
+    user_id = db.Column(db.Integer)     
+    image_url = db.Column(db.Text)
     last_edit = db.Column(db.DateTime)
 
 class User(db.Model):
@@ -70,6 +51,8 @@ class User(db.Model):
     vendor_location = db.Column(db.Text, nullable = True)
     #vendor_product_list = db.Column(ARRAY(db.Text)) #https://groups.google.com/g/sqlalchemy/c/5aTmT4rUJo4?pli=1
     credits = db.Column(db.Float)
+    profile_image_url = db.Column(db.Text)
+    vendor_image_url = db.Column(db.Text)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -89,3 +72,33 @@ class Application(db.Model):
     applsDate = db.Column(db.Date)
     busLocation = db.Column(db.Text)
     reason = db.Column(db.Text)
+
+class Report(db.Model):
+    """Model for the stations table"""
+    
+    __tablename__ = 'report'
+
+    report_id = db.Column(db.Integer, primary_key = True)
+    userReporter_id = db.Column(db.Integer)
+    reportedUser_id = db.Column(db.Integer)
+    reportText = db.Column(db.Text)
+    reportDate = db.Column(db.Date)
+
+class Nutrition(db.Model):
+    """Model for the stations table"""
+    
+    __tablename__ = 'nutrition'
+
+    nutrition_id = db.Column(db.Integer, primary_key = True)
+    recipe_id = db.Column(db.Integer)
+    details = db.Column(db.Text)
+
+class Reaction(db.Model):
+    """Model for the stations table"""
+    
+    __tablename__ = 'reaction'
+
+    reaction_id = db.Column(db.Integer, primary_key = True)
+    post_id = db.Column(db.Integer)
+    user_id = db.Column(db.Integer)
+

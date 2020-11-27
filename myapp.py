@@ -1,92 +1,24 @@
-
-'''
-from flask import Flask, url_for, redirect, session
-
-from authlib.integrations.flask_client import OAuth
-
-app = Flask(__name__)
-app.secret_key = 'random secret' #need to randomly generate this
-
-#oauth config
-oauth = OAuth(app)
-google = oauth.register(
-    name='google',
-    client_id='720141718226-gk93b8rl0m5raduj13817ul4ichl24bq.apps.googleusercontent.com',#os.getenv("GOOGLE_CLIENT_ID"),
-    client_secret='eRdWK_fc3kddV6Kyx5pEUkk-',#os.getenv("GOOGLE_CLIENT_SECRET"),
-    access_token_url='https://accounts.google.com/o/oauth2/token',
-    access_token_params=None,
-    authorize_url='https://accounts.google.com/o/oauth2/auth',
-    authorize_params=None,
-    api_base_url='https://www.googleapis.com/oauth2/v1/',
-    #userinfo_endpoint='https://openidconnect.googleapis.com/v1/userinfo',  # This is only needed if using openId to fetch user info
-    client_kwargs={'scope': 'openid profile email'},
-)
-
-@app.route('/')
-def hello_world():
-    email = dict(session).get('email',None)
-    return f'Hello, {email}'
-
-
-
-@app.route('/login')
-def login():
-    google = oauth.create_client('google')
-    redirect_uri = url_for('authorize', _external=True)
-    return google.authorize_redirect(redirect_uri)
-
-@app.route('/authorize')
-def authorize():
-    google = oauth.create_client('google')
-    token = google.authorize_access_token()
-    resp = google.get('userinfo')
-    user_info = resp.json()
-    # do something with the token and profile
-    session['email'] = user_info['email']
-    return redirect('/')
-
-
-@app.route('/logout')
-def logout():
-    for key in list(session.keys()):
-        session.pop(key)
-    return redirect('/')
-
-'''
-
-   # This file is based off of this tutorial: https://stackabuse.com/deploying-a-flask-application-to-heroku/ 
-    #Author: Chandra Krintz, 
-   # License: UCSB BSD -- see LICENSE file in this repository
+# This file is based off of this tutorial: https://stackabuse.com/deploying-a-flask-application-to-heroku/ 
+# #Author: Chandra Krintz, 
+# License: UCSB BSD -- see LICENSE file in this repository
 
 
 import os, json
 from flask import Flask, request, jsonify, make_response
-from controllers import product_controller, post_controller, appl_controller, user_controller
+from controllers import product_controller, post_controller, appl_controller, user_controller, report_controller, nutrition_controller, reaction_controller
 from models import models
 from flask_login import current_user, login_user, logout_user
 from flask_login import LoginManager
 from werkzeug.urls import url_parse
-from forms import RegistrationForm, LoginForm
+from dotenv import load_dotenv
+load_dotenv()
 
 #use this if linking to a reaact app on the same server
 #app = Flask(__name__, static_folder='./build', static_url_path='/')
 app = Flask(__name__)
 DEBUG=True
-POSTGRES = {
-    'user': 'postgres',
-    'pw': 'password',
-    'db': 'cs148db',
-    'host': 'localhost',
-    'port': '5432',
-}
 
-
-#For Production:
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://rfshnkukompizc:d1ceeaebb80d23172c143eecc4e446c9cacba1877862b7be3acf1714c8aea51d@ec2-3-210-178-167.compute-1.amazonaws.com:5432/d5k9aac8pmgho9'
-
-#For Testing:
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
-   %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
 
 login = LoginManager(app) # for logging in
 login.login_view = 'login'
@@ -193,7 +125,7 @@ def updatePost():
 @app.route('/api/post/', methods=['DELETE'])
 def deleteApp():
     return post_controller.delete(request.args)
-###End of Product routes ###
+###End of Post routes ###
 
 ## Start of User routes
 
@@ -243,6 +175,68 @@ def deleteUser():
 
 ### End of User routes ###
 
+### Start of Report routes ###
+@app.route('/api/report/', methods=['POST'])
+def createReport(): 
+    return report_controller.create(request.args, request.data)
+
+@app.route('/api/report/', methods=['GET'])
+def showReport():
+    if(request.args.get("show", None)):
+        return report_controller.show(request.args)
+    elif(request.args.get("display_all", None)):
+        return report_controller.display_all(request.args)
+    else:
+        return report_controller.show(request.args)
+
+@app.route('/api/report/', methods=['PATCH'])
+def updateReport():
+    return report_controller.update(request.args, request.data)
+
+@app.route('/api/report/', methods=['DELETE'])
+def deleteReport():
+    return report_controller.delete(request.args)
+
+### End of Report routes ###
+
+### Start of Nutrition routes ###
+@app.route('/api/nutrition/', methods=['POST'])
+def createNutrition(): 
+    return nutrition_controller.create(request.args, request.data)
+
+@app.route('/api/nutrition/', methods=['GET'])
+def showNutrition():
+    if(request.args.get("show", None)):
+        return nutrition_controller.show(request.args)
+    elif(request.args.get("display_all", None)):
+        return nutrition_controller.display_all(request.args)
+    else:
+        return nutrition_controller.show(request.args)
+
+@app.route('/api/nutrition/', methods=['PATCH'])
+def updateNutrition():
+    return nutrition_controller.update(request.args, request.data)
+
+@app.route('/api/nutrition/', methods=['DELETE'])
+def deleteNutrition():
+    return nutrition_controller.delete(request.args)
+
+### End of Nutrition routes ###
+
+@app.route('/api/reaction/', methods=['POST'])
+def createReaction(): 
+    return reaction_controller.create(request.args)
+
+@app.route('/api/reaction/', methods=['GET'])
+def showReaction():
+    if request.args.get("post_id", None):
+        return reaction_controller.display_all(request.args)
+    else:
+        return reaction_controller.show(request.args)
+
+@app.route('/api/reaction/', methods=['DELETE'])
+def deleteReaction():
+    return reaction_controller.delete(request.args)
 
 # Set the base route to be the react index.html
 @app.route('/')
