@@ -5,18 +5,20 @@
 
 import os, json
 from flask import Flask, request, jsonify, make_response
-from controllers import product_controller, post_controller, appl_controller, user_controller, report_controller, nutrition_controller
+from controllers import product_controller, post_controller, appl_controller, user_controller, report_controller, nutrition_controller, reaction_controller
 from models import models
 from flask_login import current_user, login_user, logout_user
 from flask_login import LoginManager
 from werkzeug.urls import url_parse
+from dotenv import load_dotenv
+load_dotenv()
 
 #use this if linking to a reaact app on the same server
 #app = Flask(__name__, static_folder='./build', static_url_path='/')
 app = Flask(__name__)
 DEBUG=True
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
 
 login = LoginManager(app) # for logging in
 login.login_view = 'login'
@@ -220,6 +222,21 @@ def deleteNutrition():
     return nutrition_controller.delete(request.args)
 
 ### End of Nutrition routes ###
+
+@app.route('/api/reaction/', methods=['POST'])
+def createReaction(): 
+    return reaction_controller.create(request.args)
+
+@app.route('/api/reaction/', methods=['GET'])
+def showReaction():
+    if request.args.get("post_id", None):
+        return reaction_controller.display_all(request.args)
+    else:
+        return reaction_controller.show(request.args)
+
+@app.route('/api/reaction/', methods=['DELETE'])
+def deleteReaction():
+    return reaction_controller.delete(request.args)
 
 # Set the base route to be the react index.html
 @app.route('/')

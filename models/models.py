@@ -93,3 +93,12 @@ class Nutrition(db.Model):
     recipe_id = db.Column(db.Integer)
     details = db.Column(db.Text)
 
+class Reaction(db.Model):
+    """Model for the stations table"""
+    
+    __tablename__ = 'reaction'
+
+    reaction_id = db.Column(db.Integer, primary_key = True)
+    post_id = db.Column(db.Integer)
+    user_id = db.Column(db.Integer)
+
