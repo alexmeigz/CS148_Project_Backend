@@ -99,13 +99,12 @@ def display_all(params):
     else:
         #Query for Reaction
         reactions = models.Reaction.query.filter_by(post_id=reactionFields["post_id"]).all()
-        
+        users = list()
+
         for reaction in reactions:
-            response[reaction.reaction_id] = {
-                "reaction_id" : reaction.reaction_id,
-                "user_id" : reaction.user_id,
-                "post_id" : reaction.post_id
-            }
+            users.append(reaction.user_id)
+        
+        response["users"] = users
     
         status = 200
     return jsonify(response), status
