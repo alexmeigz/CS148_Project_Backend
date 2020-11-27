@@ -36,6 +36,12 @@ def create(params, body):
 
     
     else:
+        #Check for nonempty body
+        if body.decode().strip() == "":
+            response["message"] = "Report content cannot be null"
+            status = 400
+            return jsonify(response), status
+
         #Add Report to Database
         report = models.Report(
             userReporter_id=reportFields["userReporter_id"],
