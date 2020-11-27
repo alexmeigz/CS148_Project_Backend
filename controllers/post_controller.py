@@ -1,7 +1,7 @@
 from flask import jsonify
 import json
 from models import models
-from controllers import base_controller
+from controllers import base_controller, reaction_controller
 import time, datetime
 
 def blog_create(params, body): 
@@ -215,7 +215,14 @@ def display_all(params):
     posts = models.Post.query.all()
     
     response = {}
+
     for post in posts:
+        reactions = models.Reaction.query.filter_by(post_id=post.post_id).all()
+        users = list()
+
+        for reaction in reactions:
+            users.append(reaction.user_id)
+
         response[post.post_id] = {
             "post_id" : post.post_id,
             "post_type" : post.post_type,
@@ -227,6 +234,7 @@ def display_all(params):
             "instructions" : post.instructions,
             "last_edit" : post.last_edit,
             "user_id" : post.user_id,
+            "reacted_users" : users,
             "image_url" : post.image_url
         }
     status = 200

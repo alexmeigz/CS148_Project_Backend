@@ -112,7 +112,7 @@ def display_all(params):
 def delete(params):
     #Initialize
     response = {}
-    requiredFields = ["reaction_id"]
+    requiredFields = ["post_id", "user_id"]
     reactionFields = {}
 
     #Check for Required Fields
@@ -129,7 +129,7 @@ def delete(params):
         status = 400
     else:
         #Query for Product
-        reaction = models.Reaction.query.filter_by(reaction_id=reactionFields["reaction_id"]).first()
+        reaction = models.Reaction.query.filter_by(post_id=reactionFields["post_id"]).filter_by(user_id=reactionFields["user_id"]).first()
         
         if reaction is not None:
             #Query Successful
