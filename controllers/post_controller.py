@@ -33,6 +33,11 @@ def blog_create(params, body):
         response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
         status = 400
     else:
+        if body.decode().strip() == "":
+            response["message"] = "Request content cannot be null"
+            status = 400
+            return jsonify(response), status
+            
         #Add Blog to Database
         blog = models.Post(
             post_type="blog",
@@ -92,6 +97,11 @@ def review_create(params, body):
             status = 400
             return jsonify(response), status
 
+        if body.decode().strip() == "":
+            response["message"] = "Request content cannot be null"
+            status = 400
+            return jsonify(response), status
+            
         #Add Blog to Database
         review = models.Post(
             post_type="review",
