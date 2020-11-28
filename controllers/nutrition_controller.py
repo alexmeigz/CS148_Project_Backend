@@ -201,6 +201,8 @@ def update(params):
 
             if(params.get("sodium", None)):
                 nutrition.sodium = str(nutritionFields["sodium"]) + "mg"
+
+            models.db.session.commit()
             
             #Query Successful
             response["message"] = "Nutrition successfully updated"
