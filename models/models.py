@@ -102,3 +102,12 @@ class Reaction(db.Model):
     post_id = db.Column(db.Integer)
     user_id = db.Column(db.Integer)
 
+class Comment(db.Model):
+    
+    __tablename__ = 'comment'
+
+    id = db.Column(db.Integer, primary_key = True)
+    post_id = db.Column(db.Integer)
+    user_id = db.Column(db.Integer)
+    com_date = db.Column(db.Date)
+    com_info = db.Column(db.Text)

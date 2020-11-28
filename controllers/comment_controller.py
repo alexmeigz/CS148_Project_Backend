@@ -6,10 +6,10 @@ import time, datetime
 def create(params): 
     #Initialize
     response = {}
-    requiredFields = ["user_id", "restName", "vendorType", "reason"]
-    optionalFields = ["busLocation"]
+    requiredFields = ["post_id", "user_id", "com_info"]
+    optionalFields = []
     allFields = requiredFields + optionalFields
-    applFields = {}
+    commentFields = {}
 
     #Check for Required Fields
     for field in requiredFields:
@@ -17,14 +17,14 @@ def create(params):
             response["message"] = "Missing Required Parameters: {}".format(requiredFields)
             status = 400
             return jsonify(response), status
-        applFields[field] = params.get(field, None)
+        commentFields[field] = params.get(field, None)
         
     #Check for Optional Fields
-    for field in optionalFields:
-        if field == "busLocation":
-            applFields[field] = params.get(field, 0)
-        else:
-            applFields[field] = params.get(field, None)
+    # for field in optionalFields:
+    #     if field == "frequency":
+    #         applFields[field] = params.get(field, 0)
+    #     else:
+    #         applFields[field] = params.get(field, None)
 
     #Check for Invalid Parameters
     if base_controller.verify(params, allFields): 
@@ -33,30 +33,29 @@ def create(params):
     else:
         #Check for Numerical Price and Frequency
         try:
-            applFields["user_id"] = int(applFields["user_id"])
+            commentFields["post_id"] = int(commentFields["post_id"])
+            commentFields["user_id"] = int(commentFields["user_id"])
         except:
             response["message"] = "Request has incorrect parameter type"
             status = 400
             return jsonify(response), status
 
         #Check for Valid Vendor Type
-        if applFields["vendorType"] not in ["Home", "Business"]:
-            response["message"] = "vendorType must be either Home or Business"
-            status = 400
-            return jsonify(response), status
+        # if commentFields["vendorType"] not in ["Home", "Business"]:
+        #     response["message"] = "vendorType must be either Home or Business"
+        #     status = 400
+        #     return jsonify(response), status
 
         #Add Product to Database
-        application = models.Application(
-            user_id=applFields["user_id"],
-            restName=applFields["restName"],
-            busLocation=applFields["busLocation"],
-            vendorType=applFields["vendorType"],
-            reason=applFields["reason"],
-            applsDate=datetime.date.today()
+        comment = models.Comment(
+            post_id=commentFields["post_id"],
+            user_id=commentFields["user_id"],
+            com_info=commentFields["com_info"],
+            com_date=datetime.date.today()
             )
-        models.db.session.add(application)
+        models.db.session.add(comment)
         models.db.session.commit()
-        response["message"] = "Application sent successfully!"
+        response["message"] = "Comment created successfully!"
         status = 200
   
     return jsonify(response), status
