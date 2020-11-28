@@ -15,8 +15,20 @@ from werkzeug.urls import url_parse
 #app = Flask(__name__, static_folder='./build', static_url_path='/')
 app = Flask(__name__)
 DEBUG=True
+POSTGRES = {
+    'user': 'postgres',
+    'pw': 'password',
+    'db': 'cs148db',
+    'host': 'localhost',
+    'port': '5432',
+}
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
+#For Production:
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://rfshnkukompizc:d1ceeaebb80d23172c143eecc4e446c9cacba1877862b7be3acf1714c8aea51d@ec2-3-210-178-167.compute-1.amazonaws.com:5432/d5k9aac8pmgho9'
+
+#For Testing:
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
+   %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
 
 login = LoginManager(app) # for logging in
 login.login_view = 'login'
@@ -200,7 +212,7 @@ def deleteReport():
 ### Start of Nutrition routes ###
 @app.route('/api/nutrition/', methods=['POST'])
 def createNutrition(): 
-    return nutrition_controller.create(request.args, request.data)
+    return nutrition_controller.create(request.args)
 
 @app.route('/api/nutrition/', methods=['GET'])
 def showNutrition():
@@ -213,7 +225,7 @@ def showNutrition():
 
 @app.route('/api/nutrition/', methods=['PATCH'])
 def updateNutrition():
-    return nutrition_controller.update(request.args, request.data)
+    return nutrition_controller.update(request.args)
 
 @app.route('/api/nutrition/', methods=['DELETE'])
 def deleteNutrition():

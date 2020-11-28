@@ -91,5 +91,13 @@ class Nutrition(db.Model):
 
     nutrition_id = db.Column(db.Integer, primary_key = True)
     recipe_id = db.Column(db.Integer)
-    details = db.Column(db.Text)
-
+    calories = db.Column(db.Text)
+    fat = db.Column(db.Text)
+    sat_fat = db.Column(db.Text)
+    trans_fat = db.Column(db.Text)
+    carbs = db.Column(db.Text)
+    fiber = db.Column(db.Text)
+    sugar= db.Column(db.Text)
+    protein = db.Column(db.Text)
+    chol = db.Column(db.Text)
+    sodium = db.Column(db.Text)

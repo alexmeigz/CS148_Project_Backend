@@ -6,10 +6,10 @@ from flask_login import current_user, login_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
-def create(params, body): 
+def create(params): 
     #Initialize
     response = {}
-    requiredFields = ["recipe_id"]
+    requiredFields = ["recipe_id", "calories", "fat", "sat_fat", "trans_fat", "carbs", "fiber", "sugar", "protein", "chol", "sodium"]
     optionalFields = []
     allFields = requiredFields + optionalFields
     nutritionFields = {}
@@ -38,8 +38,17 @@ def create(params, body):
     else:
         #Add Nutrition to Database
         nutrition = models.Nutrition(
-            recipe_id=nutritionFields["recipe_id"],
-            details=body.decode()
+            recipe_id=str(nutritionFields["recipe_id"]),
+            calories = str(nutritionFields["calories"]) + "cal",
+            fat = str(nutritionFields["fat"]) + "g",
+            sat_fat = str(nutritionFields["sat_fat"]) + "g",
+            trans_fat = str(nutritionFields["trans_fat"]) + "g",
+            carbs = str(nutritionFields["carbs"]) + "g",
+            fiber = str(nutritionFields["fiber"]) + "g",
+            sugar= str(nutritionFields["sugar"]) + "g",
+            protein = str(nutritionFields["protein"]) + "g",
+            chol = str(nutritionFields["chol"]) + "mg",
+            sodium = str(nutritionFields["sodium"]) + "mg"
         )
         try:
             models.db.session.add(nutrition)
@@ -86,8 +95,16 @@ def show(params):
             #Query Successful
             response["nutrition_id"] = nutrition.nutrition_id
             response["recipe_id"] = nutrition.recipe_id
-            response["details"] = nutrition.details
-            response["message"] = "Nutrition found"
+            response["calories"] = nutrition.calories
+            response["fat"] = nutrition.fat
+            response["sat_fat"] = nutrition.sat_fat
+            response["trans_fat"] = nutrition.trans_fat
+            response["carbs"] = nutrition.carbs
+            response["fiber"] = nutrition.fiber
+            response["sugar"] = nutrition.sugar
+            response["protein"] = nutrition.protein
+            response["chol"] = nutrition.chol
+            response["sodium"] = nutrition.sodium
             status = 200
         else:
             #Query Unsuccessful
@@ -103,16 +120,25 @@ def display_all(params):
     for nutrition in nutritions:
         response[nutrition.nutrition_id] = {
             "recipe_id": nutrition.recipe_id,
-            "details": nutrition.details
+            "calories": nutrition.calories,
+            "fat": nutrition.fat,
+            "sat_fat": nutrition.sat_fat,
+            "trans_fat": nutrition.trans_fat,
+            "carbs": nutrition.carbs,
+            "fiber": nutrition.fiber,
+            "sugar": nutrition.sugar,
+            "protein": nutrition.protein,
+            "chol": nutrition.chol,
+            "sodium": nutrition.sodium
         }
     status = 200
     return jsonify(response), status
 
-def update(params, body):
+def update(params):
     #Initialize
     response = {}
     requiredFields = ["nutrition_id"]
-    optionalFields = []
+    optionalFields = ["calories", "fat", "sat_fat", "trans_fat", "carbs", "fiber", "sugar", "protein", "chol", "sodium"]
     allFields = requiredFields + optionalFields
     nutritionFields = {}
 
@@ -146,8 +172,35 @@ def update(params, body):
                 return jsonify(response), status'''
 
             #Update nutrition
-            nutrition.details = body.decode()
-            models.db.session.commit()
+            if(params.get("calories", None)):
+                nutrition.calories = str(nutritionFields["calories"]) + "cal"
+
+            if(params.get("fat", None)):
+                nutrition.fat = str(nutritionFields["fat"]) + "g"
+
+            if(params.get("sat_fat", None)):
+                nutrition.sat_fat= str(nutritionFields["sat_fat"]) + "g"
+
+            if(params.get("trans_fat", None)):
+                nutrition.trans_fat = str(nutritionFields["trans_fat"]) + "g"
+
+            if(params.get("carbs", None)):
+                nutrition.carbs = str(nutritionFields["carbs"]) + "g"
+
+            if(params.get("fiber", None)):
+                nutrition.fiber = str(nutritionFields["fiber"]) + "g"
+
+            if(params.get("sugar", None)):
+                nutrition.sugar = str(nutritionFields["sugar"]) + "g"
+
+            if(params.get("protein", None)):
+                nutrition.protein = str(nutritionFields["protein"]) + "g"
+
+            if(params.get("chol", None)):
+                nutrition.chol = str(nutritionFields["chol"]) + "mg"
+
+            if(params.get("sodium", None)):
+                nutrition.sodium = str(nutritionFields["sodium"]) + "mg"
             
             #Query Successful
             response["message"] = "Nutrition successfully updated"
