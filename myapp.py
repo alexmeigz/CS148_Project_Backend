@@ -15,6 +15,7 @@ from werkzeug.urls import url_parse
 #app = Flask(__name__, static_folder='./build', static_url_path='/')
 app = Flask(__name__)
 DEBUG=True
+'''
 POSTGRES = {
     'user': 'postgres',
     'pw': 'password',
@@ -29,6 +30,8 @@ POSTGRES = {
 #For Testing:
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
    %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
+'''
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 
 login = LoginManager(app) # for logging in
 login.login_view = 'login'
