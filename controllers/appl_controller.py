@@ -21,7 +21,7 @@ def create(params):
         
     #Check for Optional Fields
     for field in optionalFields:
-        if field == "frequency":
+        if field == "busLocation":
             applFields[field] = params.get(field, 0)
         else:
             applFields[field] = params.get(field, None)

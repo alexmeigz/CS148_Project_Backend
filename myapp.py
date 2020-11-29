@@ -5,7 +5,7 @@
 
 import os, json
 from flask import Flask, request, jsonify, make_response
-from controllers import product_controller, post_controller, appl_controller, user_controller, report_controller, nutrition_controller, reaction_controller, order_controller
+from controllers import product_controller, post_controller, appl_controller, user_controller, report_controller, nutrition_controller, reaction_controller, order_controller, comment_controller
 from models import models
 from flask_login import current_user, login_user, logout_user
 from flask_login import LoginManager
@@ -256,6 +256,22 @@ def updateOrder():
 @app.route('/api/order/', methods=['DELETE'])
 def deleteOrder():
     return order_controller.delete(request.args)
+#comments db
+
+@app.route('/api/comment/', methods=['POST'])
+def createComment():
+    return comment_controller.create(request.args)
+
+@app.route('/api/comment/', methods=['GET'])
+def showComment():
+    if(request.args.get("display_all", None)):
+        return comment.display_all(request.args)
+    else:
+        return comment_controller.show(request.args)
+
+@app.route('/api/comment/', methods=['DELETE'])
+def deleteComment():
+    return comment_controller.delete(request.args)
 
 # Set the base route to be the react index.html
 @app.route('/')
