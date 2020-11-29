@@ -114,6 +114,7 @@ def display_all(params):
             "reportDate": str(report.reportDate),
             "userReporter_id": report.userReporter_id,
             "reportedUser_id": report.reportedUser_id,
+            "report_id" : report.report_id,
             "reportText": report.reportText
         }
     status = 200

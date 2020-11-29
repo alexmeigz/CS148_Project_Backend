@@ -38,7 +38,7 @@ def create(params):
     else:
         #Add Nutrition to Database
         nutrition = models.Nutrition(
-            recipe_id=str(nutritionFields["recipe_id"]),
+            recipe_id=nutritionFields["recipe_id"],
             calories = str(nutritionFields["calories"]) + "cal",
             fat = str(nutritionFields["fat"]) + "g",
             sat_fat = str(nutritionFields["sat_fat"]) + "g",
