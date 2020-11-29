@@ -1,7 +1,7 @@
 from flask import jsonify
 import json
 from models import models
-from controllers import base_controller
+from controllers import base_controller, reaction_controller
 import time, datetime
 
 def blog_create(params, body): 
@@ -33,6 +33,11 @@ def blog_create(params, body):
         response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
         status = 400
     else:
+        if body.decode().strip() == "":
+            response["message"] = "Request content cannot be null"
+            status = 400
+            return jsonify(response), status
+            
         #Add Blog to Database
         blog = models.Post(
             post_type="blog",
@@ -92,6 +97,11 @@ def review_create(params, body):
             status = 400
             return jsonify(response), status
 
+        if body.decode().strip() == "":
+            response["message"] = "Request content cannot be null"
+            status = 400
+            return jsonify(response), status
+            
         #Add Blog to Database
         review = models.Post(
             post_type="review",
@@ -205,7 +215,14 @@ def display_all(params):
     posts = models.Post.query.all()
     
     response = {}
+
     for post in posts:
+        reactions = models.Reaction.query.filter_by(post_id=post.post_id).all()
+        users = list()
+
+        for reaction in reactions:
+            users.append(reaction.user_id)
+
         response[post.post_id] = {
             "post_id" : post.post_id,
             "post_type" : post.post_type,
@@ -217,6 +234,7 @@ def display_all(params):
             "instructions" : post.instructions,
             "last_edit" : post.last_edit,
             "user_id" : post.user_id,
+            "reacted_users" : users,
             "image_url" : post.image_url
         }
     status = 200

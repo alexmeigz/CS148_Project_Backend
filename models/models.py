@@ -93,3 +93,29 @@ class Nutrition(db.Model):
     recipe_id = db.Column(db.Integer)
     details = db.Column(db.Text)
 
+class Reaction(db.Model):    
+    __tablename__ = 'reaction'
+
+    reaction_id = db.Column(db.Integer, primary_key = True)
+    post_id = db.Column(db.Integer)
+    user_id = db.Column(db.Integer)
+
+class Order(db.Model):
+    __tablename__ = 'order'
+
+    order_id = db.Column(db.Integer, primary_key = True)
+    product_id = db.Column(db.Integer)
+    buyer_id = db.Column(db.Integer)
+    seller_id = db.Column(db.Integer)
+    status = db.Column(db.Text)
+    update_date = db.Column(db.Date)
+    
+class Comment(db.Model):
+    
+    __tablename__ = 'comment'
+
+    id = db.Column(db.Integer, primary_key = True)
+    post_id = db.Column(db.Integer)
+    user_id = db.Column(db.Integer)
+    com_date = db.Column(db.Date)
+    com_info = db.Column(db.Text)
