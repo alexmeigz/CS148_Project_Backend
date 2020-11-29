@@ -201,7 +201,8 @@ def update(params):
             if productFields.get("frequency", None):
                 product.frequency = datetime.timedelta(days=productFields["frequency"])
             product.price = productFields["price"]
-            product.location = productFields["location"]
+            if productFields.get("location", None):
+                product.location = productFields["location"]
             product.image_url = productFields["image_url"]
             models.db.session.commit()
             
