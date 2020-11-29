@@ -187,7 +187,8 @@ def update(params):
             #Check for Numerical Price and Frequency
             try:
                 productFields["price"] = float(productFields["price"])
-                productFields["frequency"] = int(productFields["frequency"])
+                if productFields.get("frequency", None):
+                    productFields["frequency"] = int(productFields["frequency"])
             except:
                 response["message"] = "Request has incorrect parameter type"
                 status = 400
@@ -197,7 +198,8 @@ def update(params):
             product.name = productFields["product_name"]
             product.caption = productFields["caption"]
             product.subscription = productFields["subscription"] == "True"
-            product.frequency = datetime.timedelta(days=productFields["frequency"])
+            if productFields.get("frequency", None):
+                product.frequency = datetime.timedelta(days=productFields["frequency"])
             product.price = productFields["price"]
             product.location = productFields["location"]
             product.image_url = productFields["image_url"]
