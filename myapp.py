@@ -202,7 +202,7 @@ def deleteReport():
 ### Start of Nutrition routes ###
 @app.route('/api/nutrition/', methods=['POST'])
 def createNutrition(): 
-    return nutrition_controller.create(request.args, request.data)
+    return nutrition_controller.create(request.args)
 
 @app.route('/api/nutrition/', methods=['GET'])
 def showNutrition():
@@ -215,7 +215,7 @@ def showNutrition():
 
 @app.route('/api/nutrition/', methods=['PATCH'])
 def updateNutrition():
-    return nutrition_controller.update(request.args, request.data)
+    return nutrition_controller.update(request.args)
 
 @app.route('/api/nutrition/', methods=['DELETE'])
 def deleteNutrition():
