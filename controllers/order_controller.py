@@ -83,7 +83,13 @@ def show(params):
     return jsonify(response), status
 
 def display_all(params):
-    orders = models.Order.query.all()
+    q = models.Order.query
+    if params.get("buyer_id", None) != None:
+        q = q.filter_by(buyer_id=params["buyer_id"])
+    if params.get("seller_id", None) != None:
+        q = q.filter_by(seller_id=params["seller_id"])
+    orders = q.all()
+
     
     response = {}
     for order in orders:
