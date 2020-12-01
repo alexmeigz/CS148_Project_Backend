@@ -212,7 +212,25 @@ def show(params):
     return jsonify(response), status
 
 def display_all(params):
-    posts = models.Post.query.all()
+    q = models.Post.query
+    
+    if(params.get("title", None != None)):
+        q = q.filter(models.Post.title.contains(params["title"]))
+    
+    if params.get("post_type", None) != None:
+        q = q.filter_by(post_type=params["post_type"])
+    else:
+        types = list()
+        if params.get("recipe", None) == "true":
+            types.append("recipe")
+        if params.get("review", None) == "true":
+            types.append("review")
+        if params.get("blog", None) == "true":
+            types.append("blog")
+        if types:
+            q = q.filter(models.Post.post_type.in_(types))
+      
+    posts = q.all()
     
     response = {}
 
