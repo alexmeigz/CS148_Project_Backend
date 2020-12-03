@@ -214,6 +214,9 @@ def show(params):
 def display_all(params):
     q = models.Post.query
     
+    if(params.get("user_id", None != None)):
+        q = q.filter_by(user_id=params["user_id"])
+
     if(params.get("title", None != None)):
         q = q.filter(models.Post.title.contains(params["title"]))
     

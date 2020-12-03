@@ -53,6 +53,7 @@ class User(db.Model):
     credits = db.Column(db.Float)
     profile_image_url = db.Column(db.Text)
     vendor_image_url = db.Column(db.Text)
+    instagram = db.Column(db.Text)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
