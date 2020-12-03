@@ -115,6 +115,7 @@ class Order(db.Model):
 
     order_id = db.Column(db.Integer, primary_key = True)
     product_id = db.Column(db.Integer)
+    price = db.Column(db.Float)
     buyer_id = db.Column(db.Integer)
     seller_id = db.Column(db.Integer)
     status = db.Column(db.Text)
