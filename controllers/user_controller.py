@@ -96,11 +96,13 @@ def login(params):
             response["user_id"] = user.user_id
             response["username"] = user.username
             response["email"] = user.email
+            response["instagram"] = user.instagram
             response["account_type"] = user.account_type
             response["vendor_location"] = user.vendor_location
             response["credits"] = user.credits
             response["profile_image_url"] = user.profile_image_url
             response["vendor_image_url"] = user.vendor_image_url
+            response["vendor_name"] = user.vendor_name
             status = 200
         else:
             #Query Unsuccessful
@@ -142,8 +144,10 @@ def show(params):
             response["user_id"] = user.user_id
             response["username"] = user.username
             response["email"] = user.email
+            response["instagram"] = user.instagram
             response["account_type"] = user.account_type
             response["vendor_location"] = user.vendor_location
+            response["vendor_name"] = user.vendor_name
             response["credits"] = user.credits
             response["profile_image_url"] = user.profile_image_url
             response["vendor_image_url"] = user.vendor_image_url
@@ -169,8 +173,10 @@ def display_all(params):
             "user_id" : user.user_id,
             "username" : user.username,
             "email" : user.email,
+            "instagram" : user.instagram,
             "account_type" : user.account_type,
             "vendor_location" : user.vendor_location,
+            "vendor_name" : user.vendor_name,
             "credits" : user.credits,
             "profile_image_url" : user.profile_image_url,
             "vendor_image_url" : user.vendor_image_url
@@ -183,7 +189,7 @@ def update(params):
     #Initialize
     response = {}
     requiredFields = ["user_id"]
-    optionalFields = ["vendor_location", "email", "account_type", "credits", "vendor_image_url", "profile_image_url"]
+    optionalFields = ["vendor_location", "vendor_name", "email", "account_type", "credits", "vendor_image_url", "profile_image_url", "instagram"]
     allFields = requiredFields + optionalFields
     userFields = {}
     print(params)
@@ -221,8 +227,12 @@ def update(params):
                     return jsonify(response), status
                 user.credits = userFields["credits"]
 
+            if(userFields.get("vendor_name", None)):
+                user.vendor_name = userFields["vendor_name"]
             if(userFields.get("email", None)):
                 user.email = userFields["email"]
+            if(userFields.get("instagram", None)):
+                user.instagram = userFields["instagram"]
             if(userFields.get("account_type", None)):
                 user.account_type = userFields["account_type"]
             if(userFields.get("vendor_location", None)):

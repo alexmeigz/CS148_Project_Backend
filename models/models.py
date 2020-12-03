@@ -1,12 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin #for user login
-from werkzeug.security import generate_password_hash, check_password_hash # for pwd hashing
-
 db = SQLAlchemy()
 
 class Product(db.Model):
-    """Model for the stations table"""
-    
     __tablename__ = 'product'
 
     id = db.Column(db.Integer, primary_key = True)
@@ -22,8 +17,6 @@ class Product(db.Model):
     image_url = db.Column(db.Text)
 
 class Post(db.Model):
-    """Model for the stations table"""
-    
     __tablename__ = 'post'
 
     post_id = db.Column(db.Integer, primary_key = True)
@@ -39,30 +32,29 @@ class Post(db.Model):
     last_edit = db.Column(db.DateTime)
 
 class User(db.Model):
-    """Model for the users"""
-    
     __tablename__ = 'users'
 
     user_id = db.Column(db.Integer, primary_key = True)
     username = db.Column(db.Text, unique = True)
+    vendor_name = db.Column(db.Text)
     password_hash = db.Column(db.String(128))
     email = db.Column(db.Text)
     account_type = db.Column(db.Text)
     vendor_location = db.Column(db.Text, nullable = True)
-    #vendor_product_list = db.Column(ARRAY(db.Text)) #https://groups.google.com/g/sqlalchemy/c/5aTmT4rUJo4?pli=1
     credits = db.Column(db.Float)
     profile_image_url = db.Column(db.Text)
     vendor_image_url = db.Column(db.Text)
+    instagram = db.Column(db.Text)
 
+    '''
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    '''
 
 class Application(db.Model):
-    """Model for the stations table"""
-    
     __tablename__ = 'application'
 
     id = db.Column(db.Integer, primary_key = True)
@@ -74,8 +66,6 @@ class Application(db.Model):
     reason = db.Column(db.Text)
 
 class Report(db.Model):
-    """Model for the stations table"""
-    
     __tablename__ = 'report'
 
     report_id = db.Column(db.Integer, primary_key = True)
@@ -85,8 +75,6 @@ class Report(db.Model):
     reportDate = db.Column(db.Date)
 
 class Nutrition(db.Model):
-    """Model for the stations table"""
-    
     __tablename__ = 'nutrition'
 
     nutrition_id = db.Column(db.Integer, primary_key = True)
@@ -114,13 +102,13 @@ class Order(db.Model):
 
     order_id = db.Column(db.Integer, primary_key = True)
     product_id = db.Column(db.Integer)
+    price = db.Column(db.Float)
     buyer_id = db.Column(db.Integer)
     seller_id = db.Column(db.Integer)
     status = db.Column(db.Text)
     update_date = db.Column(db.Date)
     
 class Comment(db.Model):
-    
     __tablename__ = 'comment'
 
     id = db.Column(db.Integer, primary_key = True)
