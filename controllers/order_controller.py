@@ -151,6 +151,7 @@ def update(params):
         order = models.Order.query.filter_by(order_id=orderFields["order_id"]).first()     
 
         if order is not None:
+            previousStatus = order.status
             order.status = orderFields["status"]
             order.update_date = datetime.date.today()
         else:
@@ -159,12 +160,17 @@ def update(params):
             status = 400
 
         try:
-            if orderFields["status"] == "Refunded":
-                buyer = models.User.query.filter_by(user_id=order.buyer_id).first()
-                buyer.credits += order.price
-            elif orderFields["status"] == "Confirmed":
-                seller = models.User.query.filter_by(user_id=order.seller_id).first()
-                seller.credits += order.price
+            if orderFields["status"] == "Confirmed":
+                if previousStatus ==  "Refunded":
+                    buyer = models.User.query.filter_by(user_id=order.buyer_id).first()
+                    buyer.credits += order.price
+                elif previousStatus == "Shipped":
+                    seller = models.User.query.filter_by(user_id=order.seller_id).first()
+                    seller.credits += order.price
+                else:
+                    response["message"] = "Cannot switch order status from {} to Confirmed".format(previousStatus)
+                    status = 400
+                    return jsonify(response), status
             models.db.session.commit()
             
             #Query Successful
