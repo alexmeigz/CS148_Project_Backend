@@ -189,8 +189,23 @@ def show(params):
     else:
         #Query for Product
         post = models.Post.query.filter_by(post_id=postFields["post_id"]).first()
-        
+
         if post is not None:
+            user = models.User.query.filter_by(user_id=post.user_id).first()
+        
+            if user is None:
+                #Query Unsuccessful
+                response["message"] = "Associated user cannot be found"
+                status = 400
+                return jsonify(response), status
+
+            #Reactions
+            reactions = models.Reaction.query.filter_by(post_id=post.post_id).all()
+            users = list()
+
+            for reaction in reactions:
+                users.append(reaction.user_id)
+
             #Query Successful
             response["post_id"] = post.post_id
             response["post_type"] = post.post_type
@@ -201,13 +216,15 @@ def show(params):
             response["ingredients"] = post.ingredients
             response["instructions"] = post.instructions
             response["last_edit"] = post.last_edit
+            response["username"] = user.username
             response["user_id"] = post.user_id
             response["image_url"] = post.image_url
+            response["reacted_users"] = users
             status = 200
         else:
             #Query Unsuccessful
             response["message"] = "Post cannot be found"
-            status = 200
+            status = 400
 
     return jsonify(response), status
 
@@ -238,6 +255,14 @@ def display_all(params):
     response = {}
 
     for post in posts:
+        user = models.User.query.filter_by(user_id=post.user_id).first()
+
+        if user is None:
+            #Query Unsuccessful
+            response["message"] = "Associated user with post {} cannot be found".format(post.post_id)
+            status = 400
+            return jsonify(response), status
+
         reactions = models.Reaction.query.filter_by(post_id=post.post_id).all()
         users = list()
 
@@ -255,6 +280,7 @@ def display_all(params):
             "instructions" : post.instructions,
             "last_edit" : post.last_edit,
             "user_id" : post.user_id,
+            "username" : user.username,
             "reacted_users" : users,
             "image_url" : post.image_url
         }
@@ -265,7 +291,7 @@ def display_all(params):
 def blog_update(params, body):
     #Initialize
     response = {}
-    requiredFields = ["post_id", "type", "title", "user_id"]
+    requiredFields = ["post_id", "post_type", "title"]
     optionalFields = ["image_url"]
     allFields = requiredFields + optionalFields
     postFields = {}
@@ -296,11 +322,14 @@ def blog_update(params, body):
 
         if post is not None:
             #Update Product
-            post.post_type = postFields["type"]
+            post.post_type = postFields["post_type"]
             post.title = postFields["title"]
             post.content = body.decode()
             post.last_edit = datetime.datetime.now()
-            post.image_url = postFields["image_url"]
+            
+            if postFields.get("image_url") != None:
+                post.image_url = postFields["image_url"]
+            
             models.db.session.commit()
             
             #Query Successful
@@ -316,7 +345,7 @@ def blog_update(params, body):
 def review_update(params, body):
     #Initialize
     response = {}
-    requiredFields = ["post_id", "type", "title", "rating", "user_id"]
+    requiredFields = ["post_id", "post_type", "title", "rating"]
     optionalFields = ["image_url"]
     allFields = requiredFields + optionalFields
     postFields = {}
@@ -347,12 +376,15 @@ def review_update(params, body):
 
         if post is not None:
             #Update Product
-            post.post_type = postFields["type"]
+            post.post_type = postFields["post_type"]
             post.title = postFields["title"]
             post.content = body.decode()
             post.rating = postFields["rating"]
-            post.image_url = postFields["image_url"]
             post.last_edit = datetime.datetime.now()
+
+            if postFields.get("image_url") != None:
+                post.image_url = postFields["image_url"]
+
             models.db.session.commit()
             
             #Query Successful
@@ -368,7 +400,7 @@ def review_update(params, body):
 def recipe_update(params, body):
     #Initialize
     response = {}
-    requiredFields = ["post_id", "type", "title", "caption", "user_id", "image_url"]
+    requiredFields = ["post_id", "post_type", "title", "caption", "image_url"]
     bodyFields = ["ingredients", "instructions"]
     postFields = {}
 
@@ -403,7 +435,7 @@ def recipe_update(params, body):
 
         if post is not None:
             #Update Product
-            post.post_type = postFields["type"]
+            post.post_type = postFields["post_type"]
             post.title = postFields["title"]
             post.caption = postFields["caption"]
             post.ingredients = postFields["ingredients"]
@@ -425,7 +457,7 @@ def recipe_update(params, body):
 def delete(params):
     #Initialize
     response = {}
-    requiredFields = ["post_id", "user_id"]
+    requiredFields = ["post_id"]
     optionalFields = []
     allFields = requiredFields + optionalFields
     postFields = {}
