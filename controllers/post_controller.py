@@ -1,8 +1,9 @@
 from flask import jsonify
 import json
 from models import models
-from controllers import base_controller, reaction_controller
+from controllers import base_controller, reaction_controller, nutrition_controller
 import time, datetime
+import requests
 
 def blog_create(params, body): 
     #Initialize
@@ -159,12 +160,68 @@ def recipe_create(params, body):
             image_url=postFields["image_url"],
             last_edit=datetime.datetime.now()
         )
+        
+        #make recipe analysis POST request to edamame
+
+        nutrition_api_data = requests.post("https://api.edamam.com/api/nutrition-details?app_id=e8520cc9&app_key=3f16e194023d773558701b51eae413b8", headers={"Content-Type": "application/json"}, data=json.dumps({"title": postFields["title"], "ingr": postFields["ingredients"]}))
+        nutrition_api_data = dict(nutrition_api_data.json())
+        print(nutrition_api_data)
+        #get id of this post recently created post, which will be the recipe_id param
+        #... in our nutrition create request
         models.db.session.add(recipe)
         models.db.session.commit()
+        post = models.Post.query.order_by(models.Post.post_id.desc()).first()
+
+        #get individual data for calories, fat, carbs,etc from nutrition_api_data and 
+        # then put them all in a dict, pass this dict into nutrition_controller.create(...)
+
+        optional_nutrition_fields = ["FAT", "FASAT", "FATRN", "CHOCDF", "FIBTG", "SUGAR", "PROCNT", "CHOLE", "NA"]
+
+
+        '''
+        nutrition_info_dict = {
+                "recipe_id" : post.post_id,
+                "calories" : str(nutrition_api_data["calories"]),
+                "fat" : str(nutrition_api_data["totalNutrients"]["FAT"]["quantity"]),
+                "sat_fat" : str(nutrition_api_data["totalNutrients"]["FASAT"]["quantity"]),
+                "trans_fat" : str(nutrition_api_data["totalNutrients"]["FATRN"]["quantity"]),
+                "carbs" : str(nutrition_api_data["totalNutrients"]["CHOCDF"]["quantity"]),
+                "fiber" : str(nutrition_api_data["totalNutrients"]["FIBTG"]["quantity"]),
+                "sugar" : str(nutrition_api_data["totalNutrients"]["SUGAR"]["quantity"]),
+                "protein" : str(nutrition_api_data["totalNutrients"]["PROCNT"]["quantity"]),
+                "chol" : str(nutrition_api_data["totalNutrients"]["CHOLE"]["quantity"]),
+                "sodium" : str(nutrition_api_data["totalNutrients"]["NA"]["quantity"])
+        }
+        '''
+
+        nutrition_info_dict = {
+            "recipe_id" : post.post_id,
+            "calories" : nutrition_api_data["calories"]
+        }
+
+        for element in nutrition_api_data["totalNutrients"]:
+            print(element)
+            if element in optional_nutrition_fields:
+                nutrition_info_dict[str(nutrition_api_data["totalNutrients"][element]["label"]).lower()] = str(nutrition_api_data["totalNutrients"][element]["quantity"])
+
+        
+        #Create nutrition object in nutrition db that corresponds to this recipe's nutri
+        #... details from Edamam api call
+        print(nutrition_info_dict)
+
+        nutrition_return = nutrition_controller.create(nutrition_info_dict) 
+
+        print(nutrition_return)
+
+
+
+
         response["message"] = "Recipe Post created successfully!"
         status = 200
 
+    
     return jsonify(response), status
+    #return str(nutrition_api_data), status
 
 def show(params):
     #Initialize
