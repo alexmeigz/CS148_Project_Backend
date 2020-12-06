@@ -227,7 +227,7 @@ def createComment():
 @app.route('/api/comment/', methods=['GET'])
 def showComment():
     if(request.args.get("display_all", None)):
-        return comment.display_all(request.args)
+        return comment_controller.display_all(request.args)
     else:
         return comment_controller.show(request.args)
 
