@@ -81,13 +81,13 @@ class Nutrition(db.Model):
     recipe_id = db.Column(db.Integer)
     calories = db.Column(db.Text)
     fat = db.Column(db.Text)
-    sat_fat = db.Column(db.Text)
-    trans_fat = db.Column(db.Text)
+    saturated = db.Column(db.Text)
+    trans = db.Column(db.Text)
     carbs = db.Column(db.Text)
     fiber = db.Column(db.Text)
-    sugar= db.Column(db.Text)
+    sugars= db.Column(db.Text)
     protein = db.Column(db.Text)
-    chol = db.Column(db.Text)
+    cholesterol = db.Column(db.Text)
     sodium = db.Column(db.Text)
 
 class Reaction(db.Model):    
