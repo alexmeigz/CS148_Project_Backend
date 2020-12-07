@@ -9,8 +9,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 def create(params): 
     #Initialize
     response = {}
-    requiredFields = ["recipe_id", "calories", "fat", "sat_fat", "trans_fat", "carbs", "fiber", "sugar", "protein", "chol", "sodium"]
-    optionalFields = []
+    requiredFields = ["recipe_id"]
+    optionalFields = ["calories", "fat", "saturated", "trans", "carbs", "fiber", "sugars", "protein", "cholesterol", "sodium"]
     allFields = requiredFields + optionalFields
     nutritionFields = {}
 
@@ -27,7 +27,7 @@ def create(params):
         if field == "frequency":
             nutritionFields[field] = params.get(field, 0)
         else:
-            nutritionFields[field] = params.get(field, None)
+            nutritionFields[field] = params.get(field, "n/a")
 
     #Check for Invalid Parameters
     if base_controller.verify(params, allFields): 
@@ -39,16 +39,16 @@ def create(params):
         #Add Nutrition to Database
         nutrition = models.Nutrition(
             recipe_id=nutritionFields["recipe_id"],
-            calories = str(nutritionFields["calories"]) + "cal",
-            fat = str(nutritionFields["fat"]) + "g",
-            sat_fat = str(nutritionFields["sat_fat"]) + "g",
-            trans_fat = str(nutritionFields["trans_fat"]) + "g",
-            carbs = str(nutritionFields["carbs"]) + "g",
-            fiber = str(nutritionFields["fiber"]) + "g",
-            sugar= str(nutritionFields["sugar"]) + "g",
-            protein = str(nutritionFields["protein"]) + "g",
-            chol = str(nutritionFields["chol"]) + "mg",
-            sodium = str(nutritionFields["sodium"]) + "mg"
+            calories = str(nutritionFields["calories"]) + " cal",
+            fat = str(nutritionFields["fat"]) + " g",
+            saturated = str(nutritionFields["saturated"]) + " g",
+            trans = str(nutritionFields["trans"]) + " g",
+            carbs = str(nutritionFields["carbs"]) + " g",
+            fiber = str(nutritionFields["fiber"]) + " g",
+            sugars = str(nutritionFields["sugars"]) + " g",
+            protein = str(nutritionFields["protein"]) + " g",
+            cholesterol = str(nutritionFields["cholesterol"]) + " mg",
+            sodium = str(nutritionFields["sodium"]) + " mg"
         )
         try:
             models.db.session.add(nutrition)
@@ -97,13 +97,13 @@ def show(params):
             response["recipe_id"] = nutrition.recipe_id
             response["calories"] = nutrition.calories
             response["fat"] = nutrition.fat
-            response["sat_fat"] = nutrition.sat_fat
-            response["trans_fat"] = nutrition.trans_fat
+            response["saturated"] = nutrition.saturated
+            response["trans"] = nutrition.trans
             response["carbs"] = nutrition.carbs
             response["fiber"] = nutrition.fiber
-            response["sugar"] = nutrition.sugar
+            response["sugars"] = nutrition.sugars
             response["protein"] = nutrition.protein
-            response["chol"] = nutrition.chol
+            response["cholesterol"] = nutrition.cholesterol
             response["sodium"] = nutrition.sodium
             status = 200
         else:
@@ -122,13 +122,13 @@ def display_all(params):
             "recipe_id": nutrition.recipe_id,
             "calories": nutrition.calories,
             "fat": nutrition.fat,
-            "sat_fat": nutrition.sat_fat,
-            "trans_fat": nutrition.trans_fat,
+            "saturated": nutrition.saturated,
+            "trans": nutrition.trans,
             "carbs": nutrition.carbs,
             "fiber": nutrition.fiber,
-            "sugar": nutrition.sugar,
+            "sugars": nutrition.sugars,
             "protein": nutrition.protein,
-            "chol": nutrition.chol,
+            "cholesterol": nutrition.cholesterol,
             "sodium": nutrition.sodium
         }
     status = 200
@@ -138,7 +138,7 @@ def update(params):
     #Initialize
     response = {}
     requiredFields = ["nutrition_id"]
-    optionalFields = ["calories", "fat", "sat_fat", "trans_fat", "carbs", "fiber", "sugar", "protein", "chol", "sodium"]
+    optionalFields = ["calories", "fat", "saturated", "trans", "carbs", "fiber", "sugars", "protein", "cholesterol", "sodium"]
     allFields = requiredFields + optionalFields
     nutritionFields = {}
 
@@ -173,34 +173,34 @@ def update(params):
 
             #Update nutrition
             if(params.get("calories", None)):
-                nutrition.calories = str(nutritionFields["calories"]) + "cal"
+                nutrition.calories = str(nutritionFields["calories"]) + " cal"
 
             if(params.get("fat", None)):
-                nutrition.fat = str(nutritionFields["fat"]) + "g"
+                nutrition.fat = str(nutritionFields["fat"]) + " g"
 
-            if(params.get("sat_fat", None)):
-                nutrition.sat_fat= str(nutritionFields["sat_fat"]) + "g"
+            if(params.get("saturated", None)):
+                nutrition.saturated= str(nutritionFields["saturated"]) + " g"
 
-            if(params.get("trans_fat", None)):
-                nutrition.trans_fat = str(nutritionFields["trans_fat"]) + "g"
+            if(params.get("trans", None)):
+                nutrition.trans = str(nutritionFields["trans"]) + " g"
 
             if(params.get("carbs", None)):
-                nutrition.carbs = str(nutritionFields["carbs"]) + "g"
+                nutrition.carbs = str(nutritionFields["carbs"]) + " g"
 
             if(params.get("fiber", None)):
-                nutrition.fiber = str(nutritionFields["fiber"]) + "g"
+                nutrition.fiber = str(nutritionFields["fiber"]) + " g"
 
-            if(params.get("sugar", None)):
-                nutrition.sugar = str(nutritionFields["sugar"]) + "g"
+            if(params.get("sugars", None)):
+                nutrition.sugars = str(nutritionFields["sugars"]) + " g"
 
             if(params.get("protein", None)):
-                nutrition.protein = str(nutritionFields["protein"]) + "g"
+                nutrition.protein = str(nutritionFields["protein"]) + " g"
 
-            if(params.get("chol", None)):
-                nutrition.chol = str(nutritionFields["chol"]) + "mg"
+            if(params.get("cholesterol", None)):
+                nutrition.cholesterol = str(nutritionFields["cholesterol"]) + " mg"
 
             if(params.get("sodium", None)):
-                nutrition.sodium = str(nutritionFields["sodium"]) + "mg"
+                nutrition.sodium = str(nutritionFields["sodium"]) + " mg"
 
             models.db.session.commit()
             

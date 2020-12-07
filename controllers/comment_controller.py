@@ -40,13 +40,7 @@ def create(params):
             status = 400
             return jsonify(response), status
 
-        #Check for Valid Vendor Type
-        # if commentFields["vendorType"] not in ["Home", "Business"]:
-        #     response["message"] = "vendorType must be either Home or Business"
-        #     status = 400
-        #     return jsonify(response), status
-
-        #Add Product to Database
+        #Add Comment to Database
         comment = models.Comment(
             post_id=commentFields["post_id"],
             user_id=commentFields["user_id"],
@@ -104,72 +98,38 @@ def show(params):
     return jsonify(response), status
 
 def display_all(params):
-    comments = models.Comment.query.all()
+    #Initialize
     response = {}
-    for comment in comments:
-        response[comment.id] = {
-            "comment_id" : comment.id,
-            "post_id": comment.post_id,
-            "user_id": comment.user_id,
-            "com_date": str(comment.com_date),
-        }
-    status = 200
+    requiredFields = ["post_id", "display_all"]
+    commentFields = {}
+
+    #Check for Required Fields
+    for field in requiredFields:
+        if params.get(field, None) == None:
+            response["message"] = "Missing Required Parameters: {}".format(requiredFields)
+            status = 400
+            return jsonify(response), status
+        commentFields[field] = params.get(field, None)
+
+    #Check for Invalid Parameters
+    if base_controller.verify(params, requiredFields): 
+        response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, requiredFields))
+        status = 400
+    else:
+        #Query for Comment
+        comments = models.Comment.query.filter_by(post_id=commentFields["post_id"]).all()
+
+        for comment in comments:
+            response[comment.id] = {
+                "comment_id" : comment.id,
+                "com_info" : comment.com_info,
+                "post_id": comment.post_id,
+                "user_id": comment.user_id,
+                "com_date": str(comment.com_date)
+            }
+
+        status = 200
     return jsonify(response), status
-
-# def update(params):
-#     #Initialize
-#     response = {}
-#     requiredFields = ["id", "user_id", "restName", "vendorType", "reason"]
-#     optionalFields = ["busLocation"]
-#     allFields = requiredFields + optionalFields
-#     applFields = {}
-
-#     #Check for Required Fields
-#     for field in requiredFields:
-#         if params.get(field, None) == None:
-#             response["message"] = "Missing Required Parameters: {}".format(requiredFields)
-#             status = 400
-#             return jsonify(response), status
-#         applFields[field] = params.get(field, None)
-
-#     #Check for Optional Fields
-#         for field in optionalFields:
-#             applFields[field] = params.get(field, None)
-
-#     #Check for Invalid Parameters
-#     if base_controller.verify(params, allFields): 
-#         response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
-#         status = 400
-#     else:
-#         #Query for Product
-#         application = models.Application.query.filter_by(id=applFields["id"]).first()     
-
-#         if application is not None:
-#             #Check for Numerical Price and Frequency
-#             try:
-#                 applFields["user_id"] = int(applFields["user_id"])
-#             except:
-#                 response["message"] = "Request has incorrect parameter type"
-#                 status = 400
-#                 return jsonify(response), status
-
-#             #Update application
-#             application.restName = applFields["restName"]
-#             application.user_id = applFields["user_id"]
-#             application.vendorType = applFields["vendorType"]
-#             application.reason = applFields["reason"]
-#             application.busLocation = applFields["busLocation"]
-#             models.db.session.commit()
-            
-#             #Query Successful
-#             response["message"] = "Application successfully updated"
-#             status = 200
-#         else:
-#             #Query Unsuccessful
-#             response["message"] = "Application cannot be found"
-#             status = 200
-
-#     return jsonify(response), status
 
 def delete(params):
     #Initialize
