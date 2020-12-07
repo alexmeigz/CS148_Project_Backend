@@ -277,6 +277,35 @@ def show(params):
             response["user_id"] = post.user_id
             response["image_url"] = post.image_url
             response["reacted_users"] = users
+
+            #Nutrition
+            nutrition_facts = models.Nutrition.query.filter_by(recipe_id=post.post_id).first()
+
+            if nutrition_facts:
+                response["calories"] = nutrition_facts.calories
+                response["carbs"] = nutrition_facts.carbs
+                response["cholesterol"] = nutrition_facts.cholesterol
+                response["fat"] = nutrition_facts.fat
+                response["fiber"] = nutrition_facts.fiber
+                response["nutrition_id"] = nutrition_facts.nutrition_id
+                response["protein"] = nutrition_facts.protein
+                response["saturated"] = nutrition_facts.saturated
+                response["sodium"] = nutrition_facts.sodium
+                response["sugars"] = nutrition_facts.sugars
+                response["trans"] = nutrition_facts.trans
+            else:
+                response["calories"] = None
+                response["carbs"] = None
+                response["cholesterol"] = None
+                response["fat"] = None
+                response["fiber"] = None
+                response["nutrition_id"] = None
+                response["protein"] = None
+                response["saturated"] = None
+                response["sodium"] = None
+                response["sugars"] = None
+                response["trans"] = None      
+            
             status = 200
         else:
             #Query Unsuccessful
@@ -316,9 +345,10 @@ def display_all(params):
 
         if user is None:
             #Query Unsuccessful
-            response["message"] = "Associated user with post {} cannot be found".format(post.post_id)
+            error_response = {}
+            error_response["message"] = "Associated user with post {} cannot be found".format(post.post_id)
             status = 400
-            return jsonify(response), status
+            return jsonify(error_response), status
 
         reactions = models.Reaction.query.filter_by(post_id=post.post_id).all()
         users = list()
@@ -344,6 +374,35 @@ def display_all(params):
             "comments" : len(comments),
             "image_url" : post.image_url
         }
+
+        #Nutrition
+        nutrition_facts = models.Nutrition.query.filter_by(recipe_id=post.post_id).first()
+
+        if nutrition_facts:
+            response[post.post_id]["calories"] = nutrition_facts.calories
+            response[post.post_id]["carbs"] = nutrition_facts.carbs
+            response[post.post_id]["cholesterol"] = nutrition_facts.cholesterol
+            response[post.post_id]["fat"] = nutrition_facts.fat
+            response[post.post_id]["fiber"] = nutrition_facts.fiber
+            response[post.post_id]["nutrition_id"] = nutrition_facts.nutrition_id
+            response[post.post_id]["protein"] = nutrition_facts.protein
+            response[post.post_id]["saturated"] = nutrition_facts.saturated
+            response[post.post_id]["sodium"] = nutrition_facts.sodium
+            response[post.post_id]["sugars"] = nutrition_facts.sugars
+            response[post.post_id]["trans"] = nutrition_facts.trans
+        else:
+            response[post.post_id]["calories"] = None
+            response[post.post_id]["carbs"] = None
+            response[post.post_id]["cholesterol"] = None
+            response[post.post_id]["fat"] = None
+            response[post.post_id]["fiber"] = None
+            response[post.post_id]["nutrition_id"] = None
+            response[post.post_id]["protein"] = None
+            response[post.post_id]["saturated"] = None
+            response[post.post_id]["sodium"] = None
+            response[post.post_id]["sugars"] = None
+            response[post.post_id]["trans"] = None      
+
     status = 200
 
     return jsonify(response), status
