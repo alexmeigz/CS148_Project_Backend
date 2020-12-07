@@ -266,6 +266,8 @@ def display_all(params):
         reactions = models.Reaction.query.filter_by(post_id=post.post_id).all()
         users = list()
 
+        comments = models.Comment.query.filter_by(post_id=post.post_id).all()
+
         for reaction in reactions:
             users.append(reaction.user_id)
 
@@ -282,6 +284,7 @@ def display_all(params):
             "user_id" : post.user_id,
             "username" : user.username,
             "reacted_users" : users,
+            "comments" : len(comments),
             "image_url" : post.image_url
         }
     status = 200
