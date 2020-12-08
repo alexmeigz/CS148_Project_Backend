@@ -160,12 +160,15 @@ def show(params):
     return jsonify(response), status
 
 def display_all(params):
-    if params.get("filter", None) == "vendor":
-        users = (models.User.query.filter_by(account_type="Business").all() + 
-                    models.User.query.filter_by(account_type="Home").all())
+    q = models.User.query
+    if(params.get("vendor_name", None != None)):
+        q = q.filter(models.User.vendor_name.contains(params["vendor_name"]))
 
+    if params.get("filter", None) == "vendor":
+        users = (q.filter_by(account_type="Business").all() + 
+                    q.filter_by(account_type="Home").all())
     else:
-        users = models.User.query.all()
+        users = q.all()
     
     response = {}
     for user in users:
@@ -192,8 +195,6 @@ def update(params):
     optionalFields = ["vendor_location", "vendor_name", "email", "account_type", "credits", "vendor_image_url", "profile_image_url", "instagram"]
     allFields = requiredFields + optionalFields
     userFields = {}
-    print(params)
-    print(requiredFields)
 
     #Check for Required Fields
     for field in requiredFields:
