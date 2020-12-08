@@ -169,6 +169,7 @@ def recipe_create(params, body):
         try:
             nutrition_api_data = requests.post("https://api.edamam.com/api/nutrition-details?app_id=e8520cc9&app_key=3f16e194023d773558701b51eae413b8", headers={"Content-Type": "application/json"}, data=json.dumps({"title": postFields["title"], "ingr": postFields["ingredients"]}))
             nutrition_api_data = dict(nutrition_api_data.json())
+            calories = nutrition_api_data["calories"]
         except:
             response["message"] = "Error analyzing nutrition"
             status = 400
@@ -177,12 +178,12 @@ def recipe_create(params, body):
         #get id of this post recently created post, which will be the recipe_id param
         #... in our nutrition create request
         post = models.Post.query.order_by(models.Post.post_id.desc()).first()
-
+        print("hello:", nutrition_api_data)
         #get individual data for calories, fat, carbs,etc from nutrition_api_data and 
         # then put them all in a dict, pass this dict into nutrition_controller.create(...)
 
         optional_nutrition_fields = ["FAT", "FASAT", "FATRN", "CHOCDF", "FIBTG", "SUGAR", "PROCNT", "CHOLE", "NA"]
-
+        
 
         '''
         nutrition_info_dict = {
@@ -202,7 +203,7 @@ def recipe_create(params, body):
 
         nutrition_info_dict = {
             "recipe_id" : post.post_id,
-            "calories" : nutrition_api_data["calories"]
+            "calories" : calories
         }
 
         for element in nutrition_api_data["totalNutrients"]:
