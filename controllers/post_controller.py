@@ -128,6 +128,7 @@ def recipe_create(params, body):
     postFields = {}
 
     decoded_body = json.loads(body.decode())
+    print("Decoded:", decoded_body)
 
     #Check for Required Fields
     for field in requiredFields:
@@ -142,7 +143,7 @@ def recipe_create(params, body):
             response["message"] = "Missing Required Parameters: {}".format(bodyFields)
             status = 400
             return jsonify(response), status
-        postFields[field] = decoded_body.get(field, None)
+        postFields[field] = json.loads(decoded_body.get(field, ""))
 
     #Check for Invalid Parameters
     if base_controller.verify(params, requiredFields): 
@@ -160,16 +161,21 @@ def recipe_create(params, body):
             image_url=postFields["image_url"],
             last_edit=datetime.datetime.now()
         )
-        
-        #make recipe analysis POST request to edamame
-
-        nutrition_api_data = requests.post("https://api.edamam.com/api/nutrition-details?app_id=e8520cc9&app_key=3f16e194023d773558701b51eae413b8", headers={"Content-Type": "application/json"}, data=json.dumps({"title": postFields["title"], "ingr": postFields["ingredients"]}))
-        nutrition_api_data = dict(nutrition_api_data.json())
-        print(nutrition_api_data)
-        #get id of this post recently created post, which will be the recipe_id param
-        #... in our nutrition create request
+    
         models.db.session.add(recipe)
         models.db.session.commit()
+        
+        #make recipe analysis POST request to edamame
+        try:
+            nutrition_api_data = requests.post("https://api.edamam.com/api/nutrition-details?app_id=e8520cc9&app_key=3f16e194023d773558701b51eae413b8", headers={"Content-Type": "application/json"}, data=json.dumps({"title": postFields["title"], "ingr": postFields["ingredients"]}))
+            nutrition_api_data = dict(nutrition_api_data.json())
+        except:
+            response["message"] = "Error analyzing nutrition"
+            status = 400
+            return jsonify(response), status
+       
+        #get id of this post recently created post, which will be the recipe_id param
+        #... in our nutrition create request
         post = models.Post.query.order_by(models.Post.post_id.desc()).first()
 
         #get individual data for calories, fat, carbs,etc from nutrition_api_data and 
@@ -200,18 +206,14 @@ def recipe_create(params, body):
         }
 
         for element in nutrition_api_data["totalNutrients"]:
-            print(element)
             if element in optional_nutrition_fields:
                 nutrition_info_dict[str(nutrition_api_data["totalNutrients"][element]["label"]).lower()] = str(nutrition_api_data["totalNutrients"][element]["quantity"])
 
         
         #Create nutrition object in nutrition db that corresponds to this recipe's nutri
         #... details from Edamam api call
-        print(nutrition_info_dict)
 
         nutrition_return = nutrition_controller.create(nutrition_info_dict) 
-
-        print(nutrition_return)
 
 
 

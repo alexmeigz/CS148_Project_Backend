@@ -32,7 +32,7 @@ def create(params):
             return jsonify(response), status
 
         if reactionFields["user_id"] == 0:
-            response["message"] = "Invalid user_id"
+            response["message"] = "Please login to like this post."
             status = 400
             return jsonify(response), status
 
