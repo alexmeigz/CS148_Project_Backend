@@ -217,3 +217,40 @@ def delete(params):
             status = 400
 
     return jsonify(response), status
+
+def delete_all(params):
+    #Initialize
+    response = {}
+    requiredFields = ["product_id"]
+    optionalFields = []
+    allFields = requiredFields + optionalFields
+    orderFields = {}
+
+    #Check for Required Fields
+    for field in requiredFields:
+        if params.get(field, None) == None:
+            response["message"] = "Missing Required Parameters: {}".format(field)
+            status = 400
+            return jsonify(response), status
+        orderFields[field] = params.get(field, None)
+        
+    #Check for Optional Fields
+    for field in optionalFields:
+        orderFields[field] = params.get(field, None)
+
+    #Check for Invalid Parameters
+    if base_controller.verify(params, allFields): 
+        response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
+        status = 400
+    else:
+        #Query for order
+        order = models.Order.query.filter_by(product_id=orderFields["product_id"]).first()
+        while(order is not None):
+            models.db.session.delete(order)
+            order = models.Order.query.filter_by(product_id=orderFields["product_id"]).first()
+
+        models.db.session.commit()
+        response["message"] = "Orders successfully removed"
+        status = 200
+
+    return jsonify(response), status

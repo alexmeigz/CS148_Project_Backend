@@ -629,7 +629,66 @@ def delete(params):
 
     return jsonify(response), status
 
+def delete_all(params):
+    #Initialize
+    response = {}
+    requiredFields = ["user_id"]
+    optionalFields = []
+    allFields = requiredFields + optionalFields
+    postFields = {}
 
+    #Check for Required Fields
+    for field in requiredFields:
+        if params.get(field, None) == None:
+            response["message"] = "Missing Required Parameters: {}".format(field)
+            status = 400
+            return jsonify(response), status
+        postFields[field] = params.get(field, None)
+        
+    #Check for Optional Fields
+    for field in optionalFields:
+        postFields[field] = params.get(field, None)
+
+    #Check for Invalid Parameters
+    if base_controller.verify(params, allFields): 
+        response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
+        status = 400
+    else:
+        #Query for post
+        post = models.Post.query.filter_by(user_id=postFields["user_id"]).first()
+        while(post is not None):
+            
+            if post.post_type == "recipe":
+                try:
+                    nutrition_controller.delete({"recipe_id" : post.post_id})
+                except:
+                    response["message"] = "Error removing post nutrition facts."
+                    status = 400   
+                    return jsonify(response), status                
+
+            try:
+                comment_controller.delete_all({"post_id" : post.post_id})
+            except:
+                response["message"] = "Error removing post comments."
+                status = 400   
+                return jsonify(response), status  
+
+            try:
+                reaction_controller.delete_all({"post_id" : post.post_id})
+            except:
+                response["message"] = "Error removing post reactions."
+                status = 400   
+                return jsonify(response), status  
+
+            #Query Successful
+            models.db.session.delete(post)
+            post = models.Post.query.filter_by(user_id=postFields["user_id"]).first()
+
+        models.db.session.commit()
+        response["message"] = "Posts successfully removed"
+        status = 200
+
+    return jsonify(response), status
 
 
 
