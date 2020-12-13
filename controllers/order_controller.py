@@ -207,6 +207,13 @@ def delete(params):
         
         if order is not None:
             #Query Successful
+            if order.status in ["Pending", "Refunded"]:
+                buyer = models.User.query.filter_by(user_id=order.buyer_id).first()
+                buyer.credits += order.price
+            elif order.status == "Shipped":
+                seller = models.User.query.filter_by(user_id=order.seller_id).first()
+                seller.credits += order.price 
+
             models.db.session.delete(order)
             models.db.session.commit()
             response["message"] = "Order successfully removed"
@@ -221,8 +228,8 @@ def delete(params):
 def delete_all(params):
     #Initialize
     response = {}
-    requiredFields = ["product_id"]
-    optionalFields = []
+    requiredFields = []
+    optionalFields = ["product_id", "buyer_id", "seller_id"]
     allFields = requiredFields + optionalFields
     orderFields = {}
 
@@ -244,10 +251,43 @@ def delete_all(params):
         status = 400
     else:
         #Query for order
-        order = models.Order.query.filter_by(product_id=orderFields["product_id"]).first()
-        while(order is not None):
-            models.db.session.delete(order)
+        if(orderFields.get("product_id", None) != None):
             order = models.Order.query.filter_by(product_id=orderFields["product_id"]).first()
+            while(order is not None):
+                if order.status in ["Pending", "Refunded"]:
+                    buyer = models.User.query.filter_by(user_id=order.buyer_id).first()
+                    buyer.credits += order.price
+                elif order.status == "Shipped":
+                    seller = models.User.query.filter_by(user_id=order.seller_id).first()
+                    seller.credits += order.price                                    
+                models.db.session.delete(order)
+                order = models.Order.query.filter_by(product_id=orderFields["product_id"]).first()
+
+        elif(orderFields.get("buyer_id", None) != None):
+            order = models.Order.query.filter_by(buyer_id=orderFields["buyer_id"]).first()
+            while(order is not None):
+                models.db.session.delete(order)
+                order = models.Order.query.filter_by(buyer_id=orderFields["buyer_id"]).first()
+                if order.status in ["Pending", "Refunded"]:
+                    buyer = models.User.query.filter_by(user_id=order.buyer_id).first()
+                    buyer.credits += order.price
+                elif order.status == "Shipped":
+                    seller = models.User.query.filter_by(user_id=order.seller_id).first()
+                    seller.credits += order.price                                    
+                models.db.session.delete(order)
+                order = models.Order.query.filter_by(buyer_id=orderFields["buyer_id"]).first()
+
+        elif(orderFields.get("seller_id", None) != None):
+            order = models.Order.query.filter_by(seller_id=orderFields["seller_id"]).first()
+            while(order is not None):
+                if order.status in ["Pending", "Refunded"]:
+                    buyer = models.User.query.filter_by(user_id=order.buyer_id).first()
+                    buyer.credits += order.price
+                elif order.status == "Shipped":
+                    seller = models.User.query.filter_by(user_id=order.seller_id).first()
+                    seller.credits += order.price                                    
+                models.db.session.delete(order)
+                order = models.Order.query.filter_by(seller_id=orderFields["seller_id"]).first()
 
         models.db.session.commit()
         response["message"] = "Orders successfully removed"
