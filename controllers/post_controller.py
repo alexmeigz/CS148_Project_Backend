@@ -1,7 +1,7 @@
 from flask import jsonify
 import json
 from models import models
-from controllers import base_controller, reaction_controller, nutrition_controller
+from controllers import base_controller, reaction_controller, comment_controller, nutrition_controller
 import time, datetime
 import requests
 
@@ -16,7 +16,7 @@ def blog_create(params, body):
     #Check for Required Fields
     for field in requiredFields:
         if params.get(field, None) == None:
-            response["message"] = "Missing Required Parameters: {}".format(requiredFields)
+            response["message"] = "Missing Required Parameters: {}".format(field)
             status = 400
             return jsonify(response), status
         postFields[field] = params.get(field, None)
@@ -66,7 +66,7 @@ def review_create(params, body):
     #Check for Required Fields
     for field in requiredFields:
         if params.get(field, None) == None:
-            response["message"] = "Missing Required Parameters: {}".format(requiredFields)
+            response["message"] = "Missing Required Parameters: {}".format(field)
             status = 400
             return jsonify(response), status
         postFields[field] = params.get(field, None)
@@ -88,7 +88,7 @@ def review_create(params, body):
         try:
             postFields["rating"] = float(postFields["rating"])
         except:
-            response["message"] = "Request has invalid parameter type"
+            response["message"] = "Request has invalid type for parameter rating"
             status = 400
             return jsonify(response), status
 
@@ -133,14 +133,14 @@ def recipe_create(params, body):
     #Check for Required Fields
     for field in requiredFields:
         if params.get(field, None) == None:
-            response["message"] = "Missing Required Parameters: {}".format(requiredFields)
+            response["message"] = "Missing Required Parameters: {}".format(field)
             status = 400
             return jsonify(response), status
         postFields[field] = params.get(field, None)
 
     for field in bodyFields:
         if(field not in decoded_body.keys()):
-            response["message"] = "Missing Required Parameters: {}".format(bodyFields)
+            response["message"] = "Missing Required Parameters: {}".format(field)
             status = 400
             return jsonify(response), status
         postFields[field] = json.loads(decoded_body.get(field, ""))
@@ -161,13 +161,10 @@ def recipe_create(params, body):
             image_url=postFields["image_url"],
             last_edit=datetime.datetime.now()
         )
-    
-        models.db.session.add(recipe)
-        models.db.session.commit()
         
         #make recipe analysis POST request to edamame
         try:
-            nutrition_api_data = requests.post("https://api.edamam.com/api/nutrition-details?app_id=e8520cc9&app_key=3f16e194023d773558701b51eae413b8", headers={"Content-Type": "application/json"}, data=json.dumps({"title": postFields["title"], "ingr": postFields["ingredients"]}))
+            nutrition_api_data = requests.post("https://api.edamam.com/api/nutrition-details?app_id=e8520cc9&app_key=3f16e194023d773558701b51eae413b8", headers={"Content-Type": "application/json"}, data=json.dumps({"title": postFields["title"], "prep": postFields["instructions"], "ingr": postFields["ingredients"]}))
             nutrition_api_data = dict(nutrition_api_data.json())
             calories = nutrition_api_data["calories"]
         except:
@@ -175,32 +172,12 @@ def recipe_create(params, body):
             status = 400
             return jsonify(response), status
        
-        #get id of this post recently created post, which will be the recipe_id param
-        #... in our nutrition create request
-        post = models.Post.query.order_by(models.Post.post_id.desc()).first()
-        print("hello:", nutrition_api_data)
-        #get individual data for calories, fat, carbs,etc from nutrition_api_data and 
-        # then put them all in a dict, pass this dict into nutrition_controller.create(...)
+        models.db.session.add(recipe)
+        models.db.session.commit()
 
+        post = models.Post.query.order_by(models.Post.post_id.desc()).first()
         optional_nutrition_fields = ["FAT", "FASAT", "FATRN", "CHOCDF", "FIBTG", "SUGAR", "PROCNT", "CHOLE", "NA"]
         
-
-        '''
-        nutrition_info_dict = {
-                "recipe_id" : post.post_id,
-                "calories" : str(nutrition_api_data["calories"]),
-                "fat" : str(nutrition_api_data["totalNutrients"]["FAT"]["quantity"]),
-                "sat_fat" : str(nutrition_api_data["totalNutrients"]["FASAT"]["quantity"]),
-                "trans_fat" : str(nutrition_api_data["totalNutrients"]["FATRN"]["quantity"]),
-                "carbs" : str(nutrition_api_data["totalNutrients"]["CHOCDF"]["quantity"]),
-                "fiber" : str(nutrition_api_data["totalNutrients"]["FIBTG"]["quantity"]),
-                "sugar" : str(nutrition_api_data["totalNutrients"]["SUGAR"]["quantity"]),
-                "protein" : str(nutrition_api_data["totalNutrients"]["PROCNT"]["quantity"]),
-                "chol" : str(nutrition_api_data["totalNutrients"]["CHOLE"]["quantity"]),
-                "sodium" : str(nutrition_api_data["totalNutrients"]["NA"]["quantity"])
-        }
-        '''
-
         nutrition_info_dict = {
             "recipe_id" : post.post_id,
             "calories" : calories
@@ -210,18 +187,15 @@ def recipe_create(params, body):
             if element in optional_nutrition_fields:
                 nutrition_info_dict[str(nutrition_api_data["totalNutrients"][element]["label"]).lower()] = str(nutrition_api_data["totalNutrients"][element]["quantity"])
 
-        
-        #Create nutrition object in nutrition db that corresponds to this recipe's nutri
-        #... details from Edamam api call
-
-        nutrition_return = nutrition_controller.create(nutrition_info_dict) 
-
-
-
+        try:
+            nutrition_return, return_status = nutrition_controller.create(nutrition_info_dict) 
+        except:
+            response["message"] = "Error adding nutrition facts to database"
+            status = 400
+            return jsonify(response), status
 
         response["message"] = "Recipe Post created successfully!"
         status = 200
-
     
     return jsonify(response), status
     #return str(nutrition_api_data), status
@@ -455,7 +429,7 @@ def blog_update(params, body):
             models.db.session.commit()
             
             #Query Successful
-            response["message"] = "Post successfully updated"
+            response["message"] = "Post successfully updated. Please refresh to see updates."
             status = 200
         else:
             #Query Unsuccessful
@@ -501,6 +475,21 @@ def review_update(params, body):
             post.post_type = postFields["post_type"]
             post.title = postFields["title"]
             post.content = body.decode()
+
+            #Check for valid type
+            try:
+                postFields["rating"] = float(postFields["rating"])
+            except:
+                response["message"] = "Request has invalid type for parameter rating"
+                status = 400
+                return jsonify(response), status
+            
+            #Check for valid rating
+            if not (1 <= postFields["rating"] <= 5):
+                response["message"] = "Request has invalid rating (must be from 1 to 5"
+                status = 400
+                return jsonify(response), status
+
             post.rating = postFields["rating"]
             post.last_edit = datetime.datetime.now()
 
@@ -510,7 +499,7 @@ def review_update(params, body):
             models.db.session.commit()
             
             #Query Successful
-            response["message"] = "Post successfully updated"
+            response["message"] = "Post successfully updated. Please refresh to see updates."
             status = 200
         else:
             #Query Unsuccessful
@@ -567,7 +556,7 @@ def recipe_update(params, body):
             models.db.session.commit()
             
             #Query Successful
-            response["message"] = "Post successfully updated"
+            response["message"] = "Post successfully updated. Please refresh to see updates."
             status = 200
         else:
             #Query Unsuccessful
@@ -605,10 +594,33 @@ def delete(params):
         post = models.Post.query.filter_by(post_id=postFields["post_id"]).first()
         
         if post is not None:
+            #Delete Nutrition for Recipe Posts:
+            if post.post_type == "recipe":
+                try:
+                    nutrition_controller.delete({"recipe_id" : post.post_id})
+                except:
+                    response["message"] = "Error removing post nutrition facts."
+                    status = 400   
+                    return jsonify(response), status                
+
+            try:
+                comment_controller.delete_all({"post_id" : post.post_id})
+            except:
+                response["message"] = "Error removing post comments."
+                status = 400   
+                return jsonify(response), status  
+
+            try:
+                reaction_controller.delete_all({"post_id" : post.post_id})
+            except:
+                response["message"] = "Error removing post reactions."
+                status = 400   
+                return jsonify(response), status  
+
             #Query Successful
             models.db.session.delete(post)
             models.db.session.commit()
-            response["message"] = "Post successfully removed"
+            response["message"] = "Post successfully removed. Please refresh to see updates."
             status = 200
         else:
             #Query Unsuccessful

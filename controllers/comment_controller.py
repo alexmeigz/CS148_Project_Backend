@@ -18,13 +18,6 @@ def create(params):
             status = 400
             return jsonify(response), status
         commentFields[field] = params.get(field, None)
-        
-    #Check for Optional Fields
-    # for field in optionalFields:
-    #     if field == "frequency":
-    #         applFields[field] = params.get(field, 0)
-    #     else:
-    #         applFields[field] = params.get(field, None)
 
     #Check for Invalid Parameters
     if base_controller.verify(params, allFields): 
@@ -169,5 +162,42 @@ def delete(params):
             #Query Unsuccessful
             response["message"] = "Comment cannot be found"
             status = 200
+
+    return jsonify(response), status
+
+def delete_all(params):
+    #Initialize
+    response = {}
+    requiredFields = ["post_id"]
+    optionalFields = []
+    allFields = requiredFields + optionalFields
+    commentFields = {}
+
+    #Check for Required Fields
+    for field in requiredFields:
+        if params.get(field, None) == None:
+            response["message"] = "Missing Required Parameters: {}".format(field)
+            status = 400
+            return jsonify(response), status
+        commentFields[field] = params.get(field, None)
+        
+    #Check for Optional Fields
+    for field in optionalFields:
+        commentFields[field] = params.get(field, None)
+
+    #Check for Invalid Parameters
+    if base_controller.verify(params, allFields): 
+        response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
+        status = 400
+    else:
+        #Query for comments
+        comment = models.Comment.query.filter_by(post_id=commentFields["post_id"]).first()
+        while(comment is not None):
+            models.db.session.delete(comment)
+            comment = models.Comment.query.filter_by(post_id=commentFields["post_id"]).first()
+
+        models.db.session.commit()
+        response["message"] = "Comments successfully removed"
+        status = 200
 
     return jsonify(response), status

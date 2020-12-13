@@ -5,7 +5,6 @@ import time, datetime
 from flask_login import current_user, login_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
-
 def create(params): 
     #Initialize
     response = {}
@@ -62,7 +61,6 @@ def create(params):
   
     return jsonify(response), status
 
-
 def show(params):
     #Initialize
     response = {}
@@ -113,7 +111,6 @@ def show(params):
 
     return jsonify(response), status
 
-
 def display_all(params):
     nutritions = models.Nutrition.query.all()
     response = {}
@@ -163,14 +160,6 @@ def update(params):
         nutrition = models.Nutrition.query.filter_by(nutrition_id=nutritionFields["nutrition_id"]).first()     
 
         if nutrition is not None:
-            ''''#Check for Numerical Price and Frequency
-            try:
-                applFields["user_id"] = int(applFields["user_id"])
-            except:
-                response["message"] = "Request has incorrect parameter type"
-                status = 400
-                return jsonify(response), status'''
-
             #Update nutrition
             if(params.get("calories", None)):
                 nutrition.calories = str(nutritionFields["calories"]) + " cal"
@@ -217,7 +206,7 @@ def update(params):
 def delete(params):
     #Initialize
     response = {}
-    requiredFields = ["nutrition_id"]
+    requiredFields = ["recipe_id"]
     optionalFields = []
     allFields = requiredFields + optionalFields
     nutritionFields = {}
@@ -240,7 +229,7 @@ def delete(params):
         status = 400
     else:
         #Query for Nutrition
-        nutrition = models.Nutrition.query.filter_by(nutrition_id=nutritionFields["nutrition_id"]).first()
+        nutrition = models.Nutrition.query.filter_by(recipe_id=nutritionFields["recipe_id"]).first()
         
         if nutrition is not None:
             #Query Successful
