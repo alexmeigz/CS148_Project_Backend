@@ -152,7 +152,8 @@ def delete(params):
 def delete_all(params):
     #Initialize
     response = {}
-    requiredFields = ["post_id"]
+    requiredFields = []
+    optionalFields = ["post_id", "user_id"]
     reactionFields = {}
 
     #Check for Required Fields
@@ -163,18 +164,27 @@ def delete_all(params):
             return jsonify(response), status
         reactionFields[field] = params.get(field, None)
 
+    #Check for Optional Fields
+    for field in optionalFields:
+        reactionFields[field] = params.get(field, None)
+
     #Check for Invalid Parameters
     if base_controller.verify(params, requiredFields): 
         response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, requiredFields))
         status = 400
     else:
         #Query for Product
-        reaction = models.Reaction.query.filter_by(post_id=reactionFields["post_id"]).first()
-        
-        while(reaction is not None):
-            models.db.session.delete(reaction)
+        if(reactionFields.get("post_id") != None):
             reaction = models.Reaction.query.filter_by(post_id=reactionFields["post_id"]).first()
-
+            while(reaction is not None):
+                models.db.session.delete(reaction)
+                reaction = models.Reaction.query.filter_by(post_id=reactionFields["post_id"]).first()
+        elif(reactionFields.get("user_id") != None):
+            reaction = models.Reaction.query.filter_by(user_id=reactionFields["user_id"]).first()
+            while(reaction is not None):
+                models.db.session.delete(reaction)
+                reaction = models.Reaction.query.filter_by(user_id=reactionFields["user_id"]).first() 
+        
         models.db.session.commit()
         response["message"] = "Reaction successfully removed"
         status = 200

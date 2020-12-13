@@ -162,7 +162,7 @@ def update(params, body):
             models.db.session.commit()
             
             #Query Successful
-            response["message"] = "Report successfully updated"
+            response["message"] = "Report successfully updated. Please refresh the screen to see updates."
             status = 200
         else:
             #Query Unsuccessful
@@ -203,7 +203,7 @@ def delete(params):
             #Query Successful
             models.db.session.delete(report)
             models.db.session.commit()
-            response["message"] = "Report successfully removed"
+            response["message"] = "Report successfully removed. Please refresh the screen to see updates."
             status = 200
         else:
             #Query Unsuccessful

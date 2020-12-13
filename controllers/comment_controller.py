@@ -175,8 +175,8 @@ def delete(params):
 def delete_all(params):
     #Initialize
     response = {}
-    requiredFields = ["post_id"]
-    optionalFields = []
+    requiredFields = []
+    optionalFields = ["post_id", "user_id"]
     allFields = requiredFields + optionalFields
     commentFields = {}
 
@@ -198,10 +198,16 @@ def delete_all(params):
         status = 400
     else:
         #Query for comments
-        comment = models.Comment.query.filter_by(post_id=commentFields["post_id"]).first()
-        while(comment is not None):
-            models.db.session.delete(comment)
+        if(commentFields.get("post_id") != None):
             comment = models.Comment.query.filter_by(post_id=commentFields["post_id"]).first()
+            while(comment is not None):
+                models.db.session.delete(comment)
+                comment = models.Comment.query.filter_by(post_id=commentFields["post_id"]).first()
+        elif(commentFields.get("user_id") != None):
+            comment = models.Comment.query.filter_by(user_id=commentFields["user_id"]).first()
+            while(comment is not None):
+                models.db.session.delete(comment)
+                comment = models.Comment.query.filter_by(user_id=commentFields["user_id"]).first()
 
         models.db.session.commit()
         response["message"] = "Comments successfully removed"
