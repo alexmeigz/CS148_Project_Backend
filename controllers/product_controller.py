@@ -246,6 +246,13 @@ def delete(params):
         
         if product is not None:
             #Query Successful
+            try:
+                order_controller.delete_all({"product_id" : product.id})
+            except:
+                response["message"] = "Error removing product orders."
+                status = 400   
+                return jsonify(response), status  
+
             models.db.session.delete(product)
             models.db.session.commit()
             response["message"] = "Product successfully removed"
@@ -287,7 +294,7 @@ def delete_all(params):
         while(product is not None):
              
             try:
-                order_controller.delete_all({"product_id" : product.product_id})
+                order_controller.delete_all({"product_id" : product.id})
             except:
                 response["message"] = "Error removing product orders."
                 status = 400   
