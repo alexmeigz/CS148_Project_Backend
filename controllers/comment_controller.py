@@ -1,6 +1,6 @@
 from flask import jsonify
 from models import models
-from controllers import base_controller
+from controllers import base_controller, user_controller
 import time, datetime
 
 def create(params): 
@@ -113,11 +113,18 @@ def display_all(params):
         comments = models.Comment.query.filter_by(post_id=commentFields["post_id"]).all()
 
         for comment in comments:
+            user = models.User.query.filter_by(user_id=comment.user_id).first()
+            if user == None:
+                response["message"] = "User for comment cannot be found"
+                status = 400
+                return jsonify(response), status
+
             response[comment.id] = {
                 "comment_id" : comment.id,
                 "com_info" : comment.com_info,
                 "post_id": comment.post_id,
                 "user_id": comment.user_id,
+                "username": user.username,
                 "com_date": str(comment.com_date)
             }
 
