@@ -6,15 +6,15 @@ import time, datetime
 def create(params): 
     #Initialize
     response = {}
-    requiredFields = ["user_id", "restName", "vendorType", "reason"]
-    optionalFields = ["busLocation"]
+    requiredFields = ["user_id", "restName", "vendorType", "reason", "busLocation"]
+    optionalFields = []
     allFields = requiredFields + optionalFields
     applFields = {}
 
     #Check for Required Fields
     for field in requiredFields:
         if params.get(field, None) == None:
-            response["message"] = "Missing Required Parameters: {}".format(requiredFields)
+            response["message"] = "Missing Required Parameters: {}".format(field)
             status = 400
             return jsonify(response), status
         applFields[field] = params.get(field, None)
