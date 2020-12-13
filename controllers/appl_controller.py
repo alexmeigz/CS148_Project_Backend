@@ -217,3 +217,41 @@ def delete(params):
             status = 200
 
     return jsonify(response), status
+
+def delete_all(params):
+    #Initialize
+    response = {}
+    requiredFields = ["user_id"]
+    optionalFields = []
+    allFields = requiredFields + optionalFields
+    applFields = {}
+
+    #Check for Required Fields
+    for field in requiredFields:
+        if params.get(field, None) == None:
+            response["message"] = "Missing Required Parameters: {}".format(field)
+            status = 400
+            return jsonify(response), status
+        applFields[field] = params.get(field, None)
+        
+    #Check for Optional Fields
+    for field in optionalFields:
+        applFields[field] = params.get(field, None)
+
+    #Check for Invalid Parameters
+    if base_controller.verify(params, allFields): 
+        response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
+        status = 400
+    else:
+        #Query for Vendor Apps
+        appl = models.Application.query.filter_by(user_id=applFields["user_id"]).first()
+        while(appl is not None):
+            #Query Successful
+            models.db.session.delete(appl)
+            appl = models.Application.query.filter_by(user_id=applFields["user_id"]).first()
+
+        models.db.session.commit()
+        response["message"] = "Vendor Apps successfully removed"
+        status = 200
+
+    return jsonify(response), status

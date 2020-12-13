@@ -1,6 +1,6 @@
 from flask import jsonify
 from models import models
-from controllers import base_controller
+from controllers import base_controller, order_controller
 import time, datetime
 
 def add_test_data():
@@ -254,5 +254,52 @@ def delete(params):
             #Query Unsuccessful
             response["message"] = "Product cannot be found"
             status = 200
+
+    return jsonify(response), status
+
+def delete_all(params):
+    #Initialize
+    response = {}
+    requiredFields = ["vendor_id"]
+    optionalFields = []
+    allFields = requiredFields + optionalFields
+    productFields = {}
+
+    #Check for Required Fields
+    for field in requiredFields:
+        if params.get(field, None) == None:
+            response["message"] = "Missing Required Parameters: {}".format(field)
+            status = 400
+            return jsonify(response), status
+        productFields[field] = params.get(field, None)
+        
+    #Check for Optional Fields
+    for field in optionalFields:
+        productFields[field] = params.get(field, None)
+
+    #Check for Invalid Parameters
+    if base_controller.verify(params, allFields): 
+        response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
+        status = 400
+    else:
+        #Query for product
+        product = models.Product.query.filter_by(vendor_id=productFields["vendor_id"]).first()
+        while(product is not None):
+             
+            try:
+                order_controller.delete_all({"product_id" : product.product_id})
+            except:
+                response["message"] = "Error removing product orders."
+                status = 400   
+                return jsonify(response), status  
+
+
+            #Query Successful
+            models.db.session.delete(product)
+            product = models.Product.query.filter_by(vendor_id=productFields["vendor_id"]).first()
+
+        models.db.session.commit()
+        response["message"] = "Products successfully removed"
+        status = 200
 
     return jsonify(response), status

@@ -1,6 +1,6 @@
 from flask import jsonify
 from models import models
-from controllers import base_controller
+from controllers import base_controller, post_controller, appl_controller, product_controller, report_controller
 import time, datetime
 from flask_login import current_user, login_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -284,6 +284,39 @@ def delete(params):
         
         if user is not None:
             #Query Successful
+
+            try:
+                post_controller.delete_all({"user_id" : user.user_id})
+            except:
+                response["message"] = "Error removing posts."
+                status = 400   
+                return jsonify(response), status 
+            
+            try:
+                appl_controller.delete_all({"user_id" : user.user_id})
+            except:
+                response["message"] = "Error removing vendor apps."
+                status = 400   
+                return jsonify(response), status 
+            
+            try:
+                message, product_status = product_controller.delete_all({"vendor_id" : user.user_id})
+                print(message, product_status)
+            except:
+                response["message"] = "Error removing products."
+                status = 400   
+                return jsonify(response), status
+
+            try:
+                report_controller.delete_all({"userReporter_id" : user.user_id})
+            except:
+                response["message"] = "Error removing reports."
+                status = 400   
+                return jsonify(response), status
+
+
+
+
             models.db.session.delete(user)
             models.db.session.commit()
             response["message"] = "User successfully removed"
@@ -294,3 +327,4 @@ def delete(params):
             status = 400
 
     return jsonify(response), status
+
