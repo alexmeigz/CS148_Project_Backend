@@ -17,7 +17,7 @@ def create(params):
     #Check for Required Fields
     for field in requiredFields:
         if params.get(field, None) == None:
-            response["message"] = "Missing Required Parameters: {}".format(requiredFields)
+            response["message"] = "Missing Required Parameters: {}".format(field)
             status = 400
             return jsonify(response), status
         userFields[field] = params.get(field, None)
@@ -66,7 +66,7 @@ def login(params):
     #Check for Required Fields
     for field in requiredFields:
         if params.get(field, None) == None:
-            response["message"] = "Missing Required Parameters: {}".format(requiredFields)
+            response["message"] = "Missing Required Parameters: {}".format(field)
             status = 400
             return jsonify(response), status
         userFields[field] = params.get(field, None)
