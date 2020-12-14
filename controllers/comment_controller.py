@@ -1,6 +1,6 @@
 from flask import jsonify
 from models import models
-from controllers import base_controller
+from controllers import base_controller, user_controller
 import time, datetime
 
 def create(params): 
@@ -18,13 +18,6 @@ def create(params):
             status = 400
             return jsonify(response), status
         commentFields[field] = params.get(field, None)
-        
-    #Check for Optional Fields
-    # for field in optionalFields:
-    #     if field == "frequency":
-    #         applFields[field] = params.get(field, 0)
-    #     else:
-    #         applFields[field] = params.get(field, None)
 
     #Check for Invalid Parameters
     if base_controller.verify(params, allFields): 
@@ -120,11 +113,18 @@ def display_all(params):
         comments = models.Comment.query.filter_by(post_id=commentFields["post_id"]).all()
 
         for comment in comments:
+            user = models.User.query.filter_by(user_id=comment.user_id).first()
+            if user == None:
+                response["message"] = "User for comment cannot be found"
+                status = 400
+                return jsonify(response), status
+
             response[comment.id] = {
                 "comment_id" : comment.id,
                 "com_info" : comment.com_info,
                 "post_id": comment.post_id,
                 "user_id": comment.user_id,
+                "username": user.username,
                 "com_date": str(comment.com_date)
             }
 
@@ -169,5 +169,48 @@ def delete(params):
             #Query Unsuccessful
             response["message"] = "Comment cannot be found"
             status = 200
+
+    return jsonify(response), status
+
+def delete_all(params):
+    #Initialize
+    response = {}
+    requiredFields = []
+    optionalFields = ["post_id", "user_id"]
+    allFields = requiredFields + optionalFields
+    commentFields = {}
+
+    #Check for Required Fields
+    for field in requiredFields:
+        if params.get(field, None) == None:
+            response["message"] = "Missing Required Parameters: {}".format(field)
+            status = 400
+            return jsonify(response), status
+        commentFields[field] = params.get(field, None)
+        
+    #Check for Optional Fields
+    for field in optionalFields:
+        commentFields[field] = params.get(field, None)
+
+    #Check for Invalid Parameters
+    if base_controller.verify(params, allFields): 
+        response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
+        status = 400
+    else:
+        #Query for comments
+        if(commentFields.get("post_id") != None):
+            comment = models.Comment.query.filter_by(post_id=commentFields["post_id"]).first()
+            while(comment is not None):
+                models.db.session.delete(comment)
+                comment = models.Comment.query.filter_by(post_id=commentFields["post_id"]).first()
+        elif(commentFields.get("user_id") != None):
+            comment = models.Comment.query.filter_by(user_id=commentFields["user_id"]).first()
+            while(comment is not None):
+                models.db.session.delete(comment)
+                comment = models.Comment.query.filter_by(user_id=commentFields["user_id"]).first()
+
+        models.db.session.commit()
+        response["message"] = "Comments successfully removed"
+        status = 200
 
     return jsonify(response), status

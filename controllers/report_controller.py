@@ -162,7 +162,7 @@ def update(params, body):
             models.db.session.commit()
             
             #Query Successful
-            response["message"] = "Report successfully updated"
+            response["message"] = "Report successfully updated. Please refresh the screen to see updates."
             status = 200
         else:
             #Query Unsuccessful
@@ -203,11 +203,49 @@ def delete(params):
             #Query Successful
             models.db.session.delete(report)
             models.db.session.commit()
-            response["message"] = "Report successfully removed"
+            response["message"] = "Report successfully removed. Please refresh the screen to see updates."
             status = 200
         else:
             #Query Unsuccessful
             response["message"] = "Report cannot be found"
             status = 200
+
+    return jsonify(response), status
+
+def delete_all(params):
+    #Initialize
+    response = {}
+    requiredFields = ["userReporter_id"]
+    optionalFields = []
+    allFields = requiredFields + optionalFields
+    reportFields = {}
+
+    #Check for Required Fields
+    for field in requiredFields:
+        if params.get(field, None) == None:
+            response["message"] = "Missing Required Parameters: {}".format(field)
+            status = 400
+            return jsonify(response), status
+        reportFields[field] = params.get(field, None)
+        
+    #Check for Optional Fields
+    for field in optionalFields:
+        reportFields[field] = params.get(field, None)
+
+    #Check for Invalid Parameters
+    if base_controller.verify(params, allFields): 
+        response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
+        status = 400
+    else:
+        #Query for report
+        report = models.Report.query.filter_by(userReporter_id=reportFields["userReporter_id"]).first()
+        while(report is not None):
+            #Query Successful
+            models.db.session.delete(report)
+            report = models.Report.query.filter_by(userReporter_id=reportFields["userReporter_id"]).first()
+
+        models.db.session.commit()
+        response["message"] = "Reports successfully removed"
+        status = 200
 
     return jsonify(response), status

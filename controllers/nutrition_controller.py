@@ -5,7 +5,6 @@ import time, datetime
 from flask_login import current_user, login_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
-
 def create(params): 
     #Initialize
     response = {}
@@ -24,11 +23,11 @@ def create(params):
         
     #Check for Optional Fields
     for field in optionalFields:
-        if field == "frequency":
-            nutritionFields[field] = params.get(field, 0)
+        if params.get(field, None):
+            nutritionFields[field] = round(float(params.get(field)),2)
         else:
-            nutritionFields[field] = params.get(field, "n/a")
-
+            nutritionFields[field] = "Unknown"
+            
     #Check for Invalid Parameters
     if base_controller.verify(params, allFields): 
         response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
@@ -61,7 +60,6 @@ def create(params):
             status = 400
   
     return jsonify(response), status
-
 
 def show(params):
     #Initialize
@@ -113,7 +111,6 @@ def show(params):
 
     return jsonify(response), status
 
-
 def display_all(params):
     nutritions = models.Nutrition.query.all()
     response = {}
@@ -163,14 +160,6 @@ def update(params):
         nutrition = models.Nutrition.query.filter_by(nutrition_id=nutritionFields["nutrition_id"]).first()     
 
         if nutrition is not None:
-            ''''#Check for Numerical Price and Frequency
-            try:
-                applFields["user_id"] = int(applFields["user_id"])
-            except:
-                response["message"] = "Request has incorrect parameter type"
-                status = 400
-                return jsonify(response), status'''
-
             #Update nutrition
             if(params.get("calories", None)):
                 nutrition.calories = str(nutritionFields["calories"]) + " cal"
@@ -217,7 +206,7 @@ def update(params):
 def delete(params):
     #Initialize
     response = {}
-    requiredFields = ["nutrition_id"]
+    requiredFields = ["recipe_id"]
     optionalFields = []
     allFields = requiredFields + optionalFields
     nutritionFields = {}
@@ -240,7 +229,7 @@ def delete(params):
         status = 400
     else:
         #Query for Nutrition
-        nutrition = models.Nutrition.query.filter_by(nutrition_id=nutritionFields["nutrition_id"]).first()
+        nutrition = models.Nutrition.query.filter_by(recipe_id=nutritionFields["recipe_id"]).first()
         
         if nutrition is not None:
             #Query Successful

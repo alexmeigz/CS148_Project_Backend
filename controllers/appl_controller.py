@@ -6,15 +6,15 @@ import time, datetime
 def create(params): 
     #Initialize
     response = {}
-    requiredFields = ["user_id", "restName", "vendorType", "reason"]
-    optionalFields = ["busLocation"]
+    requiredFields = ["user_id", "restName", "vendorType", "reason", "busLocation"]
+    optionalFields = []
     allFields = requiredFields + optionalFields
     applFields = {}
 
     #Check for Required Fields
     for field in requiredFields:
         if params.get(field, None) == None:
-            response["message"] = "Missing Required Parameters: {}".format(requiredFields)
+            response["message"] = "Missing Required Parameters: {}".format(field)
             status = 400
             return jsonify(response), status
         applFields[field] = params.get(field, None)
@@ -168,7 +168,7 @@ def update(params):
             models.db.session.commit()
             
             #Query Successful
-            response["message"] = "Application successfully updated"
+            response["message"] = "Application successfully updated. Please refresh the screen to see updates."
             status = 200
         else:
             #Query Unsuccessful
@@ -209,11 +209,49 @@ def delete(params):
             #Query Successful
             models.db.session.delete(application)
             models.db.session.commit()
-            response["message"] = "Application successfully removed"
+            response["message"] = "Application successfully removed. Please refresh the screen to see updates."
             status = 200
         else:
             #Query Unsuccessful
             response["message"] = "Application cannot be found"
             status = 200
+
+    return jsonify(response), status
+
+def delete_all(params):
+    #Initialize
+    response = {}
+    requiredFields = ["user_id"]
+    optionalFields = []
+    allFields = requiredFields + optionalFields
+    applFields = {}
+
+    #Check for Required Fields
+    for field in requiredFields:
+        if params.get(field, None) == None:
+            response["message"] = "Missing Required Parameters: {}".format(field)
+            status = 400
+            return jsonify(response), status
+        applFields[field] = params.get(field, None)
+        
+    #Check for Optional Fields
+    for field in optionalFields:
+        applFields[field] = params.get(field, None)
+
+    #Check for Invalid Parameters
+    if base_controller.verify(params, allFields): 
+        response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
+        status = 400
+    else:
+        #Query for Vendor Apps
+        appl = models.Application.query.filter_by(user_id=applFields["user_id"]).first()
+        while(appl is not None):
+            #Query Successful
+            models.db.session.delete(appl)
+            appl = models.Application.query.filter_by(user_id=applFields["user_id"]).first()
+
+        models.db.session.commit()
+        response["message"] = "Vendor Apps successfully removed"
+        status = 200
 
     return jsonify(response), status

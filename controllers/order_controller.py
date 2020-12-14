@@ -207,6 +207,13 @@ def delete(params):
         
         if order is not None:
             #Query Successful
+            if order.status in ["Pending", "Refunded"]:
+                buyer = models.User.query.filter_by(user_id=order.buyer_id).first()
+                buyer.credits += order.price
+            elif order.status == "Shipped":
+                seller = models.User.query.filter_by(user_id=order.seller_id).first()
+                seller.credits += order.price 
+
             models.db.session.delete(order)
             models.db.session.commit()
             response["message"] = "Order successfully removed"
@@ -215,5 +222,75 @@ def delete(params):
             #Query Unsuccessful
             response["message"] = "Order cannot be found"
             status = 400
+
+    return jsonify(response), status
+
+def delete_all(params):
+    #Initialize
+    response = {}
+    requiredFields = []
+    optionalFields = ["product_id", "buyer_id", "seller_id"]
+    allFields = requiredFields + optionalFields
+    orderFields = {}
+
+    #Check for Required Fields
+    for field in requiredFields:
+        if params.get(field, None) == None:
+            response["message"] = "Missing Required Parameters: {}".format(field)
+            status = 400
+            return jsonify(response), status
+        orderFields[field] = params.get(field, None)
+        
+    #Check for Optional Fields
+    for field in optionalFields:
+        orderFields[field] = params.get(field, None)
+
+    #Check for Invalid Parameters
+    if base_controller.verify(params, allFields): 
+        response["message"] = "Request has invalid parameter {}".format(base_controller.verify(params, allFields))
+        status = 400
+    else:
+        #Query for order
+        if(orderFields.get("product_id", None) != None):
+            order = models.Order.query.filter_by(product_id=orderFields["product_id"]).first()
+            while(order is not None):
+                if order.status in ["Pending", "Refunded"]:
+                    buyer = models.User.query.filter_by(user_id=order.buyer_id).first()
+                    buyer.credits += order.price
+                elif order.status == "Shipped":
+                    seller = models.User.query.filter_by(user_id=order.seller_id).first()
+                    seller.credits += order.price                                    
+                models.db.session.delete(order)
+                order = models.Order.query.filter_by(product_id=orderFields["product_id"]).first()
+
+        elif(orderFields.get("buyer_id", None) != None):
+            order = models.Order.query.filter_by(buyer_id=orderFields["buyer_id"]).first()
+            while(order is not None):
+                models.db.session.delete(order)
+                order = models.Order.query.filter_by(buyer_id=orderFields["buyer_id"]).first()
+                if order.status in ["Pending", "Refunded"]:
+                    buyer = models.User.query.filter_by(user_id=order.buyer_id).first()
+                    buyer.credits += order.price
+                elif order.status == "Shipped":
+                    seller = models.User.query.filter_by(user_id=order.seller_id).first()
+                    seller.credits += order.price                                    
+                models.db.session.delete(order)
+                order = models.Order.query.filter_by(buyer_id=orderFields["buyer_id"]).first()
+
+        elif(orderFields.get("seller_id", None) != None):
+            order = models.Order.query.filter_by(seller_id=orderFields["seller_id"]).first()
+            while(order is not None):
+                if order.status in ["Pending", "Refunded"]:
+                    buyer = models.User.query.filter_by(user_id=order.buyer_id).first()
+                    buyer.credits += order.price
+                elif order.status == "Shipped":
+                    seller = models.User.query.filter_by(user_id=order.seller_id).first()
+                    seller.credits += order.price                                    
+                models.db.session.delete(order)
+                order = models.Order.query.filter_by(seller_id=orderFields["seller_id"]).first()
+
+        models.db.session.commit()
+        response["message"] = "Orders successfully removed"
+        status = 200
 
     return jsonify(response), status

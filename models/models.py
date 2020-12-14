@@ -46,14 +46,6 @@ class User(db.Model):
     vendor_image_url = db.Column(db.Text)
     instagram = db.Column(db.Text)
 
-    '''
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
-    '''
-
 class Application(db.Model):
     __tablename__ = 'application'
 

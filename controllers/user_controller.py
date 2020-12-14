@@ -1,6 +1,6 @@
 from flask import jsonify
 from models import models
-from controllers import base_controller
+from controllers import base_controller, post_controller, appl_controller, product_controller, report_controller, reaction_controller, comment_controller, order_controller
 import time, datetime
 from flask_login import current_user, login_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -17,7 +17,7 @@ def create(params):
     #Check for Required Fields
     for field in requiredFields:
         if params.get(field, None) == None:
-            response["message"] = "Missing Required Parameters: {}".format(requiredFields)
+            response["message"] = "Missing Required Parameters: {}".format(field)
             status = 400
             return jsonify(response), status
         userFields[field] = params.get(field, None)
@@ -66,7 +66,7 @@ def login(params):
     #Check for Required Fields
     for field in requiredFields:
         if params.get(field, None) == None:
-            response["message"] = "Missing Required Parameters: {}".format(requiredFields)
+            response["message"] = "Missing Required Parameters: {}".format(field)
             status = 400
             return jsonify(response), status
         userFields[field] = params.get(field, None)
@@ -160,12 +160,15 @@ def show(params):
     return jsonify(response), status
 
 def display_all(params):
-    if params.get("filter", None) == "vendor":
-        users = (models.User.query.filter_by(account_type="Business").all() + 
-                    models.User.query.filter_by(account_type="Home").all())
+    q = models.User.query
+    if(params.get("vendor_name", None != None)):
+        q = q.filter(models.User.vendor_name.contains(params["vendor_name"]))
 
+    if params.get("filter", None) == "vendor":
+        users = (q.filter_by(account_type="Business").all() + 
+                    q.filter_by(account_type="Home").all())
     else:
-        users = models.User.query.all()
+        users = q.all()
     
     response = {}
     for user in users:
@@ -192,8 +195,6 @@ def update(params):
     optionalFields = ["vendor_location", "vendor_name", "email", "account_type", "credits", "vendor_image_url", "profile_image_url", "instagram"]
     allFields = requiredFields + optionalFields
     userFields = {}
-    print(params)
-    print(requiredFields)
 
     #Check for Required Fields
     for field in requiredFields:
@@ -283,6 +284,58 @@ def delete(params):
         
         if user is not None:
             #Query Successful
+
+            try:
+                post_controller.delete_all({"user_id" : user.user_id})
+            except:
+                response["message"] = "Error removing posts."
+                status = 400   
+                return jsonify(response), status 
+            
+            try:
+                appl_controller.delete_all({"user_id" : user.user_id})
+            except:
+                response["message"] = "Error removing vendor apps."
+                status = 400   
+                return jsonify(response), status 
+            
+            try:
+                message, product_status = product_controller.delete_all({"vendor_id" : user.user_id})
+                print(message, product_status)
+            except:
+                response["message"] = "Error removing products."
+                status = 400   
+                return jsonify(response), status
+
+            try:
+                report_controller.delete_all({"userReporter_id" : user.user_id})
+            except:
+                response["message"] = "Error removing reports."
+                status = 400   
+                return jsonify(response), status
+
+            try:
+                comment_controller.delete_all({"user_id" : user.user_id})
+            except:
+                response["message"] = "Error removing comments."
+                status = 400   
+                return jsonify(response), status  
+
+            try:
+                reaction_controller.delete_all({"user_id" : user.user_id})
+            except:
+                response["message"] = "Error removing reactions."
+                status = 400   
+                return jsonify(response), status  
+
+            try:
+                order_controller.delete_all({"buyer_id" : user.user_id})
+                order_controller.delete_all({"seller_id" : user.user_id})
+            except:    
+                response["message"] = "Error removing orders."
+                status = 400   
+                return jsonify(response), status  
+
             models.db.session.delete(user)
             models.db.session.commit()
             response["message"] = "User successfully removed"
@@ -293,3 +346,4 @@ def delete(params):
             status = 400
 
     return jsonify(response), status
+
